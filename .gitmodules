@@ -1,0 +1,3 @@
+[submodule "include/derelict"]
+	path = include/derelict
+	url = https://bitbucket.org/cybershadow/derelict.git

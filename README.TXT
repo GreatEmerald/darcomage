@@ -120,8 +120,9 @@ they are standalone, but might become integrated into a resource file later on.
 The directory contains .wav, .ico and .png files for the players. The
 subdirectory fonts includes the GNU FreeFonts, used to render fonts in the game.
 
-include might contain any header files needed by Windows (like for OpenGL). Not
-used on Linux.
+include contains external dependencies (Derelict3 libraries) needed to bind the
+frontend with SDL2. It might also contain any header files needed by Windows
+(like for OpenGL).
 
 lib is the directory where you should put the compiled version of libarcomage
 in.
