@@ -17,6 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+module frontend;
 import std.stdio;
 //import std.string;
 import arco;

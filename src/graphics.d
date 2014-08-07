@@ -17,15 +17,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+module graphics;
 import std.stdio;
 import derelict.sdl2.sdl;
+import derelict.sdl2.image;
+import opengl;
 
 SDL_Window* Window;
 SDL_GLContext OGLContext;
 
+struct Size
+{
+    int x;
+    int y;
+}
+
 void SDLInit()
 {
     DerelictSDL2.load(); // GEm: It autothrows things, neat!
+    DerelictSDL2Image.load();
 
     // GEm: No worries about parachutes in SDL2, woo!
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -39,20 +49,21 @@ void SDLInit()
     if (Window == NULL)
         throw new Exception("SDLInit: Couldn't create a window:"~SDL_GetError());
 
+    InitDerelictGL3();
+
     OGLContext = SDL_GL_CreateContext(window);
     if (OGLContext == NULL)
         throw new Exception("SDLInit: Couldn't create an OpenGL context:"~SDL_GetError());
 
     InitOpenGL();
 
-    #ifdef linux
-        LoadSurface(GetFilePath("boss_linux.png"),BOSS);
-    #else
-        LoadSurface(GetFilePath("boss_windows.png"),BOSS);
-    #endif
-    LoadSurface(GetFilePath("Sprites.PNG"),SPRITES);
-    LoadSurface(GetFilePath("Title.PNG"),TITLE);
-    LoadSurface(GetFilePath("Layout.PNG"),GAMEBG);
+    version(Windows)
+        LoadSurface("boss_windows.png", GfxSlot.Boss);
+    else
+        LoadSurface("boss_linux.png", GfxSlot.Boss);
+    LoadSurface("Sprites.PNG", GfxSlot.Sprites);
+    LoadSurface("Title.PNG", GfxSlot.Title);
+    LoadSurface("Layout.PNG", GfxSlot.GameBG);
     /*if (!GetConfig(UseOriginalMenu))
     {
         LoadSurface(GetFilePath("menu.png"),&GfxData[MENU]);
@@ -69,24 +80,26 @@ void SDLInit()
     SDL_SetColorKey(GfxData[NUMSBIG],SDL_SRCCOLORKEY,SDL_MapRGB(GfxData[NUMSBIG]->format,255,0,255));
     LoadSurface(GetFilePath("castle.png"),&GfxData[CASTLE]);*/
 
-    LoadSurface(GetFilePath("dlgmsg.png"),DLGMSG);
-    LoadSurface(GetFilePath("dlgerror.png"),DLGERROR);
-    LoadSurface(GetFilePath("dlgnetwork.png"),DLGNETWORK);
-    LoadSurface(GetFilePath("dlgwinner.png"),DLGWINNER);
-    LoadSurface(GetFilePath("dlglooser.png"),DLGLOOSER);
-
-    /*SDL_SetColorKey(GfxData[CASTLE],SDL_SRCCOLORKEY,SDL_MapRGB(GfxData[CASTLE]->format,255,0,255));
-
-    numssmall=BFont_LoadFont(GetFilePath("nums_small.png"));
-    if (!numssmall)
-        GeneralProtectionFault("Data file 'nums_small.png' is missing or corrupt.");
-    bigfont=BFont_LoadFont(GetFilePath("bigfont.png"));
-    if (!bigfont)
-        GeneralProtectionFault("Data file 'bigfont.png' is missing or corrupt.");
-    font=BFont_LoadFont(GetFilePath("font.png"));
-    if (!font)
-        GeneralProtectionFault("Data file 'font.png' is missing or corrupt.");
-    BFont_SetCurrentFont(font);*/
+    LoadSurface("dlgmsg.png", GfxSlot.DlgMsg);
+    LoadSurface("dlgerror.png", GfxSlot.DlgError);
+    LoadSurface("dlgnetwork.png", GfxSlot.DlgNetwork);
+    LoadSurface("dlgwinner.png", GfxSlot.DlgWinner);
+    LoadSurface("dlglooser.png", GfxSlot.DlgLoser);
 
     InitCardLocations(2);
+}
+
+void LoadSurface(string Filename, int Slot)
+{
+    SDL_Surface* Surface;
+    char* CFilename;
+
+    CFilename = toStringz(Config.DataDir~Filename);
+
+    Surface = IMG_Load(CFilename);
+    if (!Surface)
+        throw new Exception("LoadSurface: Failed to load "~Filename~":"~SDL_GetError());
+    GfxData[Slot] = SurfaceToTexture(Surface);
+    TextureCoordinates[Slot].X = (*Surface).w; TextureCoordinates[Slot].Y = (*Surface).h;
+    SDL_FreeSurface(Surface);
 }
