@@ -19,6 +19,8 @@
 
 module graphics;
 import std.stdio;
+import std.math;
+import std.random;
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
 import opengl;
@@ -31,6 +33,24 @@ struct Size
     int x;
     int y;
 }
+struct SizeF
+{
+    float x;
+    float y;
+}
+
+SizeF[][] CardLocations; //GE: Where on the screen all our cards are.
+
+struct CachedCard
+{
+    OpenGLTexture TitleTexture;
+    int PictureHandle; //GE: Links to PictureFileCache[PictureHandle]
+    SDL_Rect PictureCoords;
+    OpenGLTexture[] DescriptionTextures;
+    int DescriptionNum;
+    OpenGLTexture[3] PriceTexture; //GE: Bricks, gems, recruits
+}
+CachedCard[][] CardCache;
 
 void SDLInit()
 {
@@ -94,7 +114,7 @@ void LoadSurface(string Filename, int Slot)
     SDL_Surface* Surface;
     char* CFilename;
 
-    CFilename = toStringz(Config.DataDir~Filename);
+    CFilename = GetCFilePath(Filename);
 
     Surface = IMG_Load(CFilename);
     if (!Surface)
@@ -102,4 +122,58 @@ void LoadSurface(string Filename, int Slot)
     GfxData[Slot] = SurfaceToTexture(Surface);
     TextureCoordinates[Slot].X = (*Surface).w; TextureCoordinates[Slot].Y = (*Surface).h;
     SDL_FreeSurface(Surface);
+}
+
+/**
+ * Initialise the position of each card in both hands. It is slightly randomised
+ * on height to provide an illusion of being true cards (which are rarely neatly
+ * aligned in the real world).
+ */
+void InitCardLocations(int NumPlayers)
+{
+    int i, n;
+    int NumCards = Config.CardsInHand;
+    float DrawScale = GetDrawScale();
+    float CardWidth = NumCards*192*DrawScale/float(Config.ResolutionX);
+    float Spacing = (1.0-CardWidth)/(NumCards+1);
+
+    CardLocations.length = NumPlayers;
+    for (i=0; i < NumPlayers; i++)
+    {
+        CardLocations[i].length = NumCards;
+        for (n=0; n < NumCards; n++)
+        {
+            CardLocations[i][n].X = Spacing * (n+1) + 192 * DrawScale * n / float(Config.ResolutionX);
+            CardLocations[i][n].Y = (uniform(-6.0, 6.0)+(6.0 + 466.0*!i))/600.0; //GEm: TODO: Implement more than 2 players - how to solve this?
+        }
+    }
+}
+
+void PrecacheCards()
+{
+    CardCache.length = CardDB.length;
+    foreach (int i, CardInfo[] Pool; CardDB)
+        CardCache[i].length = Pool.length;
+
+    PrecacheFonts();
+
+    PrecachePictures(NumPools, NumCards);
+}
+
+/**
+ * Returns the element draw size depending on the currently selected
+ * window resolution.
+ * 1600x1200 is the current native resolution of all the GfxSlot.Sprites assets.
+ *
+ * Could be made pure, but that requires Config to be immutable, which in turn
+ * requires Lua reading code to be in a constructor...
+ */
+auto GetDrawScale()
+{
+    return fmin(real(Config.ResolutionX)/1600.0, real(Config.ResolutionY)/1200.0);
+}
+
+char* GetCFilePath(string Path)
+{
+    return toStringz(Config.DataDir~Path);
 }

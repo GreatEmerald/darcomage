@@ -23,6 +23,12 @@ import derelict.opengl3.gl;
 import arco;
 import graphics;
 
+struct OpenGLTexture
+{
+    GLuint Texture;
+    Size TextureSize;
+}
+
 enum GfxSlot
 {
     Title,
