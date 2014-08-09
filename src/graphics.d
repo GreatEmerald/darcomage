@@ -47,7 +47,6 @@ struct CachedCard
     int PictureHandle; //GE: Links to PictureFileCache[PictureHandle]
     SDL_Rect PictureCoords;
     OpenGLTexture[] DescriptionTextures;
-    int DescriptionNum;
     OpenGLTexture[3] PriceTexture; //GE: Bricks, gems, recruits
 }
 CachedCard[][] CardCache;

@@ -18,6 +18,8 @@
  */
 
 module ttf;
+import std.string;
+import std.conv;
 import derelict.sdl2.ttf;
 import graphics;
 
@@ -28,7 +30,7 @@ enum FontSlots
     Name, //GEm: This is the font for the player's name.
     Message
 }
-TTF_Font*[FontSlots.max] Fonts; //GE: Array of fonts in use.
+TTF_Font*[FontSlots.max+1] Fonts; //GE: Array of fonts in use.
 
 enum NumberSlots
 {
@@ -36,7 +38,11 @@ enum NumberSlots
     Medium,
     Small
 }
-TTF_Font*[NumberSlots.max] NumberFonts; //GE: Array of fonts that render numbers in use.
+TTF_Font*[NumberSlots.max+1] NumberFonts; //GE: Array of fonts that render numbers in use.
+OpenGLTexture NumberCache[NumberSlots.max+1][10];
+
+OpenGLTexture[2] NameCache; //GEm: FIXME - needs to be dynamic
+
 /**
  * A shortened initialisation function for TTF.
  */
@@ -83,6 +89,130 @@ void PrecacheTitleText()
                 &(CardCache[PoolNum][CardNum].TitleTexture.TextureSize.X),
                 &(CardCache[PoolNum][CardNum].TitleTexture.TextureSize.Y));
         }
+    }
+}
+
+void PrecacheDescriptionText()
+{
+    Size CardSize;
+    string[] SplitLines, SplitWords;
+    int WordLength, LineLength, SpaceLength;
+    int LineHeight;
+    string CurrentLine;
+    GLuint CurrentTexture;
+    Size TextureSize;
+    OpenGLTexture CachedTexture;
+    int i;
+
+    CardSize.X = cast(int)(GetDrawScale()*2*88);
+    CardSize.Y = cast(int)(GetDrawScale()*2*53);
+
+    TTF_SizeText(Fonts[FontSlots.Description], toStringz(" "), &SpaceLength, &LineHeight);
+
+    foreach (int PoolNum, CardInfo[] Cards; CardDB)
+    {
+        foreach (int CardNum, CardInfo CurrentCard; Cards)
+        {
+            SplitLines = split(CurrentCard.Description, "\n");
+            foreach (string Line; SplitLines)
+            {
+                SplitWords = split(Line);
+                foreach (int WordNum, string Word; SplitWords)
+                {
+                    TTF_SizeText(Fonts[FontSlots.Description], toStringz(Word), &WordLength, NULL);
+                    if ((LineLength == 0 && LineLength + WordLength > CardSize.X)
+                        || (LineLength > 0 && LineLength + SpaceLength + WordLength > CardSize.X) // GEm: Next word won't fit,
+                        || (WordNum == SplitWords.length - 1)) // GEm: or there are no more words left
+                    {
+                        // GEm: This line is full, write to cache.
+                        for (i = 0; i < WordNum; i++)
+                            CurrentLine ~= SplitWords[i];
+                        CurrentTexture = TextToTexture(Fonts[FontSlots.Description], CurrentLine);
+                        TTF_SizeText(Fonts[FontSlots.Description], toStringz(CurrentLine), &(TextureSize.X), &(TextureSize.Y));
+
+                        CachedTexture.Texture = CurrentTexture;
+                        CachedTexture.TextureSize = TextureSize;
+                        CardCache[PoolNum][CardNum].DescriptionTextures ~ CachedTexture;
+
+                        LineLength = WordLength;
+                    }
+                    else if (LineLength == 0)
+                        LineLength += WordLength;
+                    else
+                        LineLength += SpaceLength + WordLength;
+                }
+            }
+        }
+    }
+}
+
+void PrecachePriceText()
+{
+    Size ZeroSize;
+    GLuint ZeroTexture = TextToTexture(Fonts[FontSlots.Title], "0"); //GE: Small optimisation - 0 is very common, so use a common texture for that
+    TTF_SizeText(Fonts[FontSlots.Title], toStringz("0"), &(ZeroSize.X), &(ZeroSize.Y));
+
+    foreach (int PoolNum, CardInfo[] Cards; CardDB)
+    {
+        foreach (int CardNum, CardInfo CurrentCard; Cards)
+        {
+            PrecacheSingleResource(PoolNum, CardNum, 0, CurrentCard.BrickCost, ZeroTexture, ZeroSize);
+            PrecacheSingleResource(PoolNum, CardNum, 1, CurrentCard.GemCost, ZeroTexture, ZeroSize);
+            PrecacheSingleResource(PoolNum, CardNum, 2, CurrentCard.RecruitCost, ZeroTexture, ZeroSize);
+        }
+    }
+}
+
+void PrecacheSingleResource(int PoolNum, int CardNum, int ResourceType, int ResourceCost, GLuint ZeroTexture, Size ZeroSize)
+{
+    Size TexSize;
+    string ReadableNumber;
+
+    if (ResourceCost > 0)
+    {
+        ReadableNumber = to!string(ResourceCost);
+        TTF_SizeText(Fonts[FontSlots.Title], toStringz(ReadableNumber), &(TexSize.X), &(TexSize.Y));
+        CardCache[PoolNum][CardNum].PriceTexture[ResourceType].Texture = TextToTexture(Fonts[FontSlots.Title], ReadableNumber);
+        CardCache[PoolNum][CardNum].PriceTexture[ResourceType].TextureSize = TexSize;
+    }
+    else
+    {
+        CardCache[PoolNum][CardNum].PriceTexture[ResourceType].Texture = ZeroTexture;
+        CardCache[PoolNum][CardNum].PriceTexture[ResourceType].TextureSize = ZeroSize;
+    }
+}
+
+void PrecacheNumbers()
+{
+    int i, n;
+    string ReadableNumber; // GEm: Has to be a string, even if it's a single char
+    SDL_Color Colour = {200, 200, 0};
+
+    for (n = 0; n <= NumberSlots.max; n++)
+    {
+        for (i = 0; i < 10; i++) // GEm: Numbers match their positions, NS[0]=0, NS[9]=9
+        {
+            ReadableNumber = to!string(i);
+            if (n == NumberSlots.Medium)
+                NumberCache[n][i].Texture = TextToTexture(NumberFonts[n], ReadableNumber);
+            else
+                NumberCache[n][i].Texture = TextToTextureColour(NumberFonts[n], ReadableNumber, Colour);
+            TTF_SizeText(NumberFonts[n], toStringz(ReadableNumber),
+                &(NumberCache[n][i].TextureSize.X), &(NumberCache[n][i].TextureSize.Y)); //GEm: We are the knights who say NI!
+        }
+    }
+}
+
+void PrecachePlayerNames()
+{
+    int NumPlayers = 2; //GEm: TODO implement variable amount of players!
+    int i;
+    SDL_Color Colour = {200, 200, 0};
+
+    for (i=0; i<NumPlayers; i++)
+    {
+        NameCache[i].Texture = TextToTextureColour(Fonts[FontSlots.Name], Player[i].Name, Colour);
+        TTF_SizeText(Fonts[FontSlots.Name], toStringz(Player[i].Name), &(NameCache[i].TextureSize.X), &(NameCache[i].TextureSize.Y));
     }
 }
 
