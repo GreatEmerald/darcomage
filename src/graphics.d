@@ -44,8 +44,7 @@ SizeF[][] CardLocations; //GE: Where on the screen all our cards are.
 struct CachedCard
 {
     OpenGLTexture TitleTexture;
-    int PictureHandle; //GE: Links to PictureFileCache[PictureHandle]
-    SDL_Rect PictureCoords;
+    OpenGLTexture PictureTexture;
     OpenGLTexture[] DescriptionTextures;
     OpenGLTexture[3] PriceTexture; //GE: Bricks, gems, recruits
 }
@@ -155,8 +154,46 @@ void PrecacheCards()
         CardCache[i].length = Pool.length;
 
     PrecacheFonts();
+    PrecachePictures();
+}
 
-    PrecachePictures(NumPools, NumCards);
+void PrecachePictures()
+{
+    int EarlierCard;
+    string CurrentPath;
+    SDL_Surface* Surface;
+
+    foreach (int PoolNum, CardInfo[] Cards; CardDB)
+    {
+        foreach (int CardNum, CardInfo Card; Cards)
+        {
+            CurrentPath = GetDPicturePath(PoolNum, CardNum);
+            // GEm: Find any duplicates and reuse them
+            for (EarlierCard = 0; EarlierCard < CardNum; EarlierCard++)
+            {
+                if (GetDPicturePath(PoolNum, EarlierCard) == CurrentPath)
+                {
+                    CardCache[PoolNum][CardNum].PictureTexture.Texture
+                        = CardCache[PoolNum][EarlierCard].PictureTexture.Texture;
+                    break;
+                }
+            }
+            // GEm: If we had no duplicates, do the heavy lifting ourselves
+            if (CardNum == 0 || CardCache[PoolNum][CardNum].PictureTexture.Texture
+                != CardCache[PoolNum][EarlierCard].PictureTexture.Texture)
+            {
+                Surface = IMG_Load(toStringz(CurrentPath));
+                if (!Surface)
+                    throw new Exception("graphics: PrecachePicture: Failed to load "~CurrentPath~": "~SDL_GetError());
+                CardCache[PoolNum][CardNum].PictureTexture.Texture = SurfaceToTexture(Surface);
+                SDL_FreeSurface(Surface);
+            }
+            CardCache[PoolNum][CardNum].PictureTexture.TextureSize.X
+                = CardDB[PoolNum][CardNum].Picture.Coordinates.w;
+            CardCache[PoolNum][CardNum].PictureTexture.TextureSize.Y
+                = CardDB[PoolNum][CardNum].Picture.Coordinates.h;
+        }
+    }
 }
 
 /**
@@ -175,4 +212,9 @@ auto GetDrawScale()
 char* GetCFilePath(string Path)
 {
     return toStringz(Config.DataDir~Path);
+}
+
+string GetDPicturePath(int PoolNum, int CardNum)
+{
+    return "lua/"~PoolNames[PoolNum]~"/"~CardDB[PoolNum][CardNum].Picture.File;
 }
