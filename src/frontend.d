@@ -56,7 +56,7 @@ void Init()
     //if (Config.SoundEnabled)
     //    Sound_Init();
 
-    SetPlayCardAnimation(&PlayCardAnimation);
+    FrontendFunctions.PlayCardAnimation = &PlayCardAnimation;
     SetPlayCardPostAnimation(&PlayCardPostAnimation);
 
     InitGame(); //GEm: Init a 1vs1 game, will choose player types later
