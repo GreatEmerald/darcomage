@@ -22,22 +22,28 @@ import std.stdio;
 import std.math;
 import std.random;
 import std.datetime;
+import std.conv;
+import std.string;
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
+import arco;
+import cards;
+import wrapper;
 import opengl;
+import ttf;
 
 SDL_Window* Window;
 SDL_GLContext OGLContext;
 
 struct Size
 {
-    int x;
-    int y;
+    int X;
+    int Y;
 }
 struct SizeF
 {
-    float x;
-    float y;
+    float X;
+    float Y;
 }
 
 SizeF[][] CardLocations; //GE: Where on the screen all our cards are.
@@ -58,31 +64,31 @@ struct CardHandle
     bool bDiscarded;
 }
 CardHandle[] CardsOnTable;
-byte CardInTransit = -1;
+int CardInTransit = -1;
 bool bDiscardedInTransit;
 
-void SDLInit()
+void InitSDL()
 {
     DerelictSDL2.load(); // GEm: It autothrows things, neat!
     DerelictSDL2Image.load();
 
     // GEm: No worries about parachutes in SDL2, woo!
     if (SDL_Init(SDL_INIT_VIDEO) < 0)
-        throw new Exception("SDLInit: Couldn't initialise SDL:"~SDL_GetError()); // GEm: Throwing things like a boss!
+        throw new Exception("SDLInit: Couldn't initialise SDL: "~to!string(SDL_GetError())); // GEm: Throwing things like a boss!
 
     // GEm: A nicer way to get ourselves a window to play in!
     Window = SDL_CreateWindow("DArcomage",
         SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
         Config.ResolutionX, Config.ResolutionY,
         (Config.Fullscreen*SDL_WINDOW_FULLSCREEN_DESKTOP) | SDL_WINDOW_OPENGL);
-    if (Window == NULL)
-        throw new Exception("SDLInit: Couldn't create a window:"~SDL_GetError());
+    if (!Window)
+        throw new Exception("SDLInit: Couldn't create a window: "~to!string(SDL_GetError()));
 
     InitDerelictGL3();
 
-    OGLContext = SDL_GL_CreateContext(window);
-    if (OGLContext == NULL)
-        throw new Exception("SDLInit: Couldn't create an OpenGL context:"~SDL_GetError());
+    OGLContext = SDL_GL_CreateContext(Window);
+    if (!OGLContext)
+        throw new Exception("SDLInit: Couldn't create an OpenGL context: "~to!string(SDL_GetError()));
 
     InitOpenGL();
 
@@ -121,13 +127,13 @@ void SDLInit()
 void LoadSurface(string Filename, int Slot)
 {
     SDL_Surface* Surface;
-    char* CFilename;
+    immutable(char)* CFilename;
 
     CFilename = GetCFilePath(Filename);
 
     Surface = IMG_Load(CFilename);
     if (!Surface)
-        throw new Exception("LoadSurface: Failed to load "~Filename~":"~SDL_GetError());
+        throw new Exception("LoadSurface: Failed to load "~Filename~": "~to!string(SDL_GetError()));
     GfxData[Slot] = SurfaceToTexture(Surface);
     TextureCoordinates[Slot].X = (*Surface).w; TextureCoordinates[Slot].Y = (*Surface).h;
     SDL_FreeSurface(Surface);
@@ -143,7 +149,7 @@ void InitCardLocations(int NumPlayers)
     int i, n;
     int NumCards = Config.CardsInHand;
     float DrawScale = GetDrawScale();
-    float CardWidth = NumCards*192*DrawScale/float(Config.ResolutionX);
+    float CardWidth = NumCards * 192 * DrawScale / cast(float)Config.ResolutionX;
     float Spacing = (1.0-CardWidth)/(NumCards+1);
 
     CardLocations.length = NumPlayers;
@@ -152,7 +158,7 @@ void InitCardLocations(int NumPlayers)
         CardLocations[i].length = NumCards;
         for (n=0; n < NumCards; n++)
         {
-            CardLocations[i][n].X = Spacing * (n+1) + 192 * DrawScale * n / float(Config.ResolutionX);
+            CardLocations[i][n].X = Spacing * (n+1) + 192 * DrawScale * n / cast(float)Config.ResolutionX;
             CardLocations[i][n].Y = (uniform(-6.0, 6.0)+(6.0 + 466.0*!i))/600.0; //GEm: TODO: Implement more than 2 players - how to solve this?
         }
     }
@@ -195,7 +201,7 @@ void PrecachePictures()
             {
                 Surface = IMG_Load(toStringz(CurrentPath));
                 if (!Surface)
-                    throw new Exception("graphics: PrecachePicture: Failed to load "~CurrentPath~": "~SDL_GetError());
+                    throw new Exception("graphics: PrecachePicture: Failed to load "~CurrentPath~": "~to!string(SDL_GetError()));
                 CardCache[PoolNum][CardNum].PictureTexture.Texture = SurfaceToTexture(Surface);
                 SDL_FreeSurface(Surface);
             }
@@ -210,7 +216,7 @@ void PrecachePictures()
 /**
  * Function that the library calls when it's time to draw a card moving.
  */
-void PlayCardAnimation(int CardPlace, byte bDiscarded, byte bSameTurn)
+extern (C) void PlayCardAnimation(int CardPlace, char bDiscarded, char bSameTurn)
 {
     immutable int FloatToHnsecs = 1000000;
 
@@ -303,7 +309,7 @@ void PlayCardAnimation(int CardPlace, byte bDiscarded, byte bSameTurn)
  * Plays the animation of the card in transit going to the right location on
  * the table and the bank handing out a card to the player.
  */
-void PlayCardPostAnimation(int CardPlace)
+extern (C) void PlayCardPostAnimation(int CardPlace)
 {
     DrawScene();
     UpdateScreen();
@@ -314,7 +320,7 @@ void PlayCardPostAnimation(int CardPlace)
     SizeF Source;
     Source.X = 0.5 - 192 * GetDrawScale() / 2.0 / 800.0;
     Source.Y = 0.5 - 256 * GetDrawScale() / 2.0 / 600.0;
-    SizeF Destination = GetCardOnTableLocation(CardsOnTableSize);
+    SizeF Destination = GetCardOnTableLocation(cast(int)CardsOnTable.length);
     SizeF CurrentLocation;
     long AnimDuration = 5 * FloatToHnsecs;
     long StartTime, CurrentTime;
@@ -326,7 +332,7 @@ void PlayCardPostAnimation(int CardPlace)
     {
         ClearScreen();
         DrawBackground();
-        DrawFoldedAlpha(0, BankLocation.X, BankLocation.Y, GetConfig(CardTranslucency)/255.0);
+        DrawFolded(0, BankLocation, Config.CardTranslucency / 255.0);
         DrawCardsOnTable(false);
         DrawUI();
         DrawStatus();
@@ -363,7 +369,7 @@ void PlayCardPostAnimation(int CardPlace)
     {
         ClearScreen();
         DrawBackground();
-        DrawFoldedAlpha(0, BankLocation.X, BankLocation.Y, cast(float)Config.CardTranslucency / 255.0);
+        DrawFolded(0, BankLocation, cast(float)Config.CardTranslucency / 255.0);
         DrawCardsOnTable();
         DrawUI();
         DrawStatus();
@@ -378,11 +384,52 @@ void PlayCardPostAnimation(int CardPlace)
         SDL_Delay(10);
 
         CurrentTime = Clock.currTime.stdTime;
-        ElapsedPercentage = (CurrentTime - StartTime) / (double)AnimDuration;
+        ElapsedPercentage = (CurrentTime - StartTime) / cast(double)AnimDuration;
     }
 
     CardInTransit = -1;
     bDiscardedInTransit = false;
+}
+
+/**
+ * Draws all of the non-moving elements in the main game scene. That means
+ * everything except for cards.
+ */
+void DrawScene()
+{
+    ClearScreen();
+    DrawBackground();
+    SizeF BankLocation = GetCardOnTableLocation(0);
+    DrawFolded(0, BankLocation, cast(float)Config.CardTranslucency/255.0);
+    DrawUI();
+    DrawStatus();
+    if (CardInTransit > -1)
+    {
+        DrawCardsOnTable(false);
+        SizeF TransitingCardLocation;
+        TransitingCardLocation.X = 0.5 - 192 * GetDrawScale() / 2.0 / 800.0;
+        TransitingCardLocation.Y = 0.5 - 256 * GetDrawScale() / 2.0 / 600.0;
+        if (bDiscardedInTransit)
+        {
+            DrawHandleCardAlpha(CardsOnTable[CardsOnTable.length-1].Pool,
+                CardsOnTable[CardsOnTable.length-1].Card,
+                TransitingCardLocation.X, TransitingCardLocation.Y,
+                Config.CardTranslucency / 255.0);
+            DrawDiscard(TransitingCardLocation);
+        }
+        else
+        {
+            DrawHandleCard(CardsOnTable[CardsOnTable.length-1].Pool,
+                CardsOnTable[CardsOnTable.length-1].Card,
+                TransitingCardLocation.X, TransitingCardLocation.Y);
+        }
+        DrawPlayerCards(Turn, CardInTransit);
+    }
+    else
+    {
+        DrawCardsOnTable();
+        DrawPlayerCards();
+    }
 }
 
 /**
@@ -418,7 +465,7 @@ void DrawBackground()
     // GEm: TODO: Use Config.Resolution[XY]
     SizeF DestCoords = {0.0, 0.0};
     SizeF DestWH = {1.0, 129.0/600.0};
-    SDL_Colour RectCol = {0,16,8,255};
+    SDL_Color RectCol = {0,16,8,255};
     DrawRectangle(DestCoords, DestWH, RectCol);
     DestCoords.Y = (600.0 - 129.0) / 600.0;
     DrawRectangle(DestCoords, DestWH, RectCol);
@@ -426,8 +473,8 @@ void DrawBackground()
     //GE: Draw the gradients on top and bottom of the screen.
     DestCoords.Y = 129.0 / 600.0;
     DestWH.Y = 14.3 / 600.0;
-    SDL_Colour RectColA = {0,16,8,255};
-    SDL_Colour RectColB = {16,66,41,255};
+    SDL_Color RectColA = {0,16,8,255};
+    SDL_Color RectColB = {16,66,41,255};
     DrawGradient(DestCoords, DestWH, RectColA, RectColB);
     DestCoords.Y = 143.3 / 600.0;
     DestWH.Y = 7.7 / 600.0;
@@ -552,7 +599,7 @@ void DrawHandleCardAlpha(int Pool, int Card, float X, float Y, float Alpha)
     }
 
     //GEm: Draw card image.
-    ItemPosition = CardCache[Pool][Card].PictureTexture.TextureSize;
+    ItemPosition = AbsoluteTextureSize(CardCache[Pool][Card].PictureTexture.TextureSize);
     BoundingBox.X = 88 / 800.0;
     BoundingBox.Y = 52 / 600.0;
     float CustomDrawScale = fmax(BoundingBox.X / (ItemPosition.w / ResX),
@@ -578,10 +625,9 @@ void DrawHandleCard(int Pool, int Card, float X, float Y)
     DrawHandleCardAlpha(Pool, Card, X, Y, 1.0);
 }
 
-void DrawCardAlpha(byte PlayerNum, byte PositionInHand, float X, float Y, float Alpha)
+void DrawCardAlpha(int PlayerNum, int PositionInHand, float X, float Y, float Alpha)
 {
     int Pool, Card;
-    GetCardHandle(Player, Number, &Pool, &Card);
     foreach (int a, CardInfo[] Cards; CardDB)
     {
         foreach (int b, CardInfo CI; Cards)
@@ -598,7 +644,7 @@ void DrawCardAlpha(byte PlayerNum, byte PositionInHand, float X, float Y, float 
     DrawHandleCardAlpha(Pool, Card, X, Y, Alpha);
 }
 
-void DrawCard(byte PlayerNum, byte PositionInHand, float X, float Y)
+void DrawCard(int PlayerNum, int PositionInHand, float X, float Y)
 {
         DrawCardAlpha(PlayerNum, PositionInHand, X, Y, 1.0);
 }
@@ -633,7 +679,7 @@ void DrawPlayerCards()
 /**
  * Draws a graphic that reads "DISCARDED!" or such. Or maybe some symbol, who knows.
  */
-void DrawDiscard(SizeF ScreenPosition;)
+void DrawDiscard(SizeF ScreenPosition)
 {
     SDL_Rect ItemPosition;
     float DrawScale = GetDrawScale();
@@ -684,7 +730,6 @@ void DrawFolded(int Team, SizeF ScreenPosition)
  */
 void DrawCardsOnTable(bool bAll)
 {
-    int i;
     SizeF Destination;
 
     foreach(int i, CardHandle CardOnTable; CardsOnTable)
@@ -735,7 +780,7 @@ void DrawUI()
     ItemPosition.x = 1000;
     ItemPosition.y = 0;
     ItemPosition.w = 68;
-    ItemPosition.h = 94 + 200 * (Player[0].Tower / cast(float)Config.TowerVictory); //GEm: TODO: Implement more than 2 players
+    ItemPosition.h = cast(int)(94 + 200 * (Player[0].Tower / cast(float)Config.TowerVictory)); //GEm: TODO: Implement more than 2 players
 
     ScreenPosition.X = 92.0 / 800.0;
     ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h) / 600.0;
@@ -743,7 +788,7 @@ void DrawUI()
         ItemPosition, ScreenPosition, DrawScale * 2.0 * 284.0 / 294.0);
 
     ItemPosition.x = 1068;
-    ItemPosition.h = 94 + 200 * (Player[1].Tower / cast(float)Config.TowerVictory);
+    ItemPosition.h = cast(int)(94 + 200 * (Player[1].Tower / cast(float)Config.TowerVictory));
     ScreenPosition.X = (800.0 - ItemPosition.w - 92.0) / 800.0;
     ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h) / 600.0;
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
@@ -753,14 +798,14 @@ void DrawUI()
     ItemPosition.x = 1136;
     ItemPosition.y = 0;
     ItemPosition.w = 45;
-    ItemPosition.h = 38 + 200 * (Player[0].Wall / cast(float)Config.MaxWall);
+    ItemPosition.h = cast(int)(38 + 200 * (Player[0].Wall / cast(float)Config.MaxWall));
 
     ScreenPosition.X = 162.0 / 800.0;
     ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h) / 600.0;
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
         ItemPosition, ScreenPosition, DrawScale * 2.0 * 284.0 / 294.0);
 
-    ItemPosition.h = 38 + 200 * (Player[1].Wall / cast(float)Config.MaxWall);
+    ItemPosition.h = cast(int)(38 + 200 * (Player[1].Wall / cast(float)Config.MaxWall));
     ScreenPosition.X = (800.0 - ItemPosition.w - 162.0) / 800.0;
     ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h) / 600.0;
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
@@ -850,7 +895,7 @@ void DrawStatus()
         ScreenPosition.Y = (443 - 3) / 600.0;
         BoundingBox.X = 43 / 800.0;
         BoundingBox.Y = 7 / 600.0;
-        DrawSmallNumber(Player[i].Tower), ScreenPosition, BoundingBox);
+        DrawSmallNumber(Player[i].Tower, ScreenPosition, BoundingBox);
 
         //GEm: Draw the wall height.
         ScreenPosition.X = (166 + 433 * i) / 800.0;
@@ -880,13 +925,13 @@ void DrawBigNumbers(int PlayerNum)
         switch(i)
         {
             case 0:
-                Resource = Player[PlayerNum].Quarry);
+                Resource = Player[PlayerNum].Quarry;
                 break;
             case 1:
-                Resource = Player[PlayerNum].Magic);
+                Resource = Player[PlayerNum].Magic;
                 break;
             default:
-                Resource = Player[PlayerNum].Dungeon);
+                Resource = Player[PlayerNum].Dungeon;
         }
         TensDigit = Resource / 10;
         OnesDigit = Resource % 10;
@@ -928,13 +973,13 @@ void DrawMediumNumbers(int PlayerNum)
         switch(i)
         {
             case 0:
-                Resource = Player[PlayerNum].Bricks);
+                Resource = Player[PlayerNum].Bricks;
                 break;
             case 1:
-                Resource = Player[PlayerNum].Gems);
+                Resource = Player[PlayerNum].Gems;
                 break;
             default:
-                Resource = Player[PlayerNum].Recruits);
+                Resource = Player[PlayerNum].Recruits;
         }
         HundredsDigit = Resource / 100;
         TensDigit = Resource / 10 % 10;
@@ -1111,8 +1156,8 @@ SizeF GetCardOnTableLocation(int CardSlot)
     //GEm: Good thing that int = float means int = floor(float)!
     auto CardWidth = 192 * GetDrawScale() / Config.ResolutionX;
     auto CardHeight = 256 * GetDrawScale() / Config.ResolutionY;
-    int CardsX = 0.7 / CardWidth;
-    int CardsY = 0.5 / CardHeight;
+    int CardsX = cast(int)(0.7 / CardWidth);
+    int CardsY = cast(int)(0.5 / CardHeight);
     auto CombinedCardWidth = CardWidth * CardsX;
     auto CombinedCardHeight = CardHeight * CardsY;
     auto SpacingX = (0.7 - CombinedCardWidth) / (CardsX - 1);
@@ -1166,10 +1211,10 @@ SDL_Rect AbsoluteTextureSize(Size TextureSize)
  */
 auto GetDrawScale()
 {
-    return fmin(real(Config.ResolutionX)/1600.0, real(Config.ResolutionY)/1200.0);
+    return fmin(cast(real)Config.ResolutionX/1600.0, cast(real)Config.ResolutionY/1200.0);
 }
 
-char* GetCFilePath(string Path)
+immutable(char)* GetCFilePath(string Path)
 {
     return toStringz(Config.DataDir~Path);
 }

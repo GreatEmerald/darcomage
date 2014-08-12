@@ -17,6 +17,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+module input;
+import derelict.sdl2.sdl;
+import arco;
+import graphics;
+
+enum MenuButton
+{
+    Start,
+    Hotseat,
+    Multiplayer,
+    Score,
+    Credits,
+    Quit
+};
+
 SDL_Event event;
 
 int Menu()
@@ -42,7 +57,7 @@ int Menu()
         switch (event.type)
         {
             case SDL_QUIT:
-                value=QUIT;
+                value = MenuButton.Quit;
                 break;
             case SDL_MOUSEMOTION:
                 for (i = 0; i < 6; i++)
@@ -104,10 +119,12 @@ int Menu()
                     UpdateScreen();
                 }
                 break;
-            }
-            SDL_Delay(0);//CPUWAIT); //GE: FIXME: This is not the same between platforms and causes major lag in Linux.
+            default:
+                break;
         }
-        return value;
+        SDL_Delay(0);//CPUWAIT); //GE: FIXME: This is not the same between platforms and causes major lag in Linux.
+    }
+    return value;
 }
 
 bool FInRect(float x, float y, float x1, float y1, float x2, float y2)

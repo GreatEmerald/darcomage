@@ -19,10 +19,11 @@
 
 module frontend;
 import std.stdio;
-//import std.string;
 import arco;
+import cards;
 import graphics;
-//import cards;
+import ttf;
+import input;
 
 /**
  * Entry function.
@@ -40,7 +41,7 @@ int main()
     catch (Exception e)
         writeln("Error: %s", e.msg);
     finally
-        Quit();
+        {}//Quit();
 
     return 0;
 }
@@ -79,7 +80,7 @@ void MenuSelection()
     // GEm: Handle the button (still needs handling of all others than regular play!)
     switch (MenuAction)
     {
-        /*case START:
+        /*case MenuButton.Start:
             // GEm: Should read the names from somewhere (config or input)
             // GEm: F...something should toggle fullscreen!
             SetPlayerInfo(Turn, "Player", 0); //GE: Set up a player VS AI game.

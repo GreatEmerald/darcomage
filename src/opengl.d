@@ -19,7 +19,9 @@
 
 module opengl;
 import std.stdio;
+import std.conv;
 import derelict.opengl3.gl;
+import derelict.sdl2.sdl;
 import arco;
 import graphics;
 
@@ -83,17 +85,17 @@ GLuint SurfaceToTexture(SDL_Surface* surface)
     GLenum texture_format;
 
     // get the number of channels in the SDL surface
-    nOfColors = surface->format->BytesPerPixel;
+    nOfColors = surface.format.BytesPerPixel;
     if (nOfColors == 4)     // contains an alpha channel
     {
-        if (surface->format->Rmask == 0x000000ff)
+        if (surface.format.Rmask == 0x000000ff)
             texture_format = GL_RGBA;
         else
             texture_format = GL_BGRA;
     }
     else if (nOfColors == 3)     // no alpha channel
     {
-        if (surface->format->Rmask == 0x000000ff)
+        if (surface.format.Rmask == 0x000000ff)
             texture_format = GL_RGB;
         else
             texture_format = GL_BGR;
@@ -118,8 +120,8 @@ GLuint SurfaceToTexture(SDL_Surface* surface)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     // Edit the texture object's image data using the information SDL_Surface gives us
-    glTexImage2D(GL_TEXTURE_2D, 0, nOfColors, surface->w, surface->h, 0,
-        texture_format, GL_UNSIGNED_BYTE, surface->pixels);
+    glTexImage2D(GL_TEXTURE_2D, 0, nOfColors, surface.w, surface.h, 0,
+        texture_format, GL_UNSIGNED_BYTE, surface.pixels);
 
 
     return texture;
@@ -142,7 +144,7 @@ void DrawTextureAlpha(GLuint Texture, Size TexSize, SDL_Rect SourceCoords, SizeF
     float DestinationH = cast(float)SourceCoords.h * ScaleFactor;
 
     if (!glIsTexture(Texture))
-        writeln("Warning: opengl: DrawTextureAlpha: This is not a valid OpenGL texture: "~Texture);
+        writeln("Warning: opengl: DrawTextureAlpha: This is not a valid OpenGL texture: "~to!string(Texture));
     //printf("Info: DrawTexture: Called with (%d, {%d, %d}, {%d, %d, %d, %d}, {%f, %f}, %f)\n", Texture, TexSize.X, TexSize.Y, SourceCoords.x, SourceCoords.y, SourceCoords.w, SourceCoords.h, DestinationCoords.X, DestinationCoords.Y, ScaleFactor);
 
     //GEm: Normalise destination coordinates (drop half-pixels)
@@ -194,29 +196,29 @@ void DrawTexture(GLuint Texture, Size TexSize, SDL_Rect SourceCoords, SizeF Dest
 }
 
 /// Draws a solid-colour rectangle.
-void DrawRectangle(SizeF DestinationCoords, SizeF DestinationWH, SDL_Colour Colour)
+void DrawRectangle(SizeF DestinationCoords, SizeF DestinationWH, SDL_Color Colour)
 {
     //We need a solid colour, thus texturing support is irrelevant. Also, this does not affect things we have already rendered.
     glDisable(GL_TEXTURE_2D);
     glColor4f(cast(float)Colour.r / 255.0, cast(float)Colour.g / 255.0,
-        cast(float)Colour.b / 255.0, cast(float)Colour.a / 255.0);
+        cast(float)Colour.b / 255.0, cast(float)Colour.unused / 255.0);
     glRectf(DestinationCoords.X, DestinationCoords.Y,
         DestinationCoords.X + DestinationWH.X, DestinationCoords.Y + DestinationWH.Y);
     glEnable(GL_TEXTURE_2D);
 }
 
 /// Draws a gradient rectangle between colours A and B
-void DrawGradient(SizeF DestinationCoords, SizeF DestinationWH, SDL_Colour ColourA, SDL_Colour ColourB)
+void DrawGradient(SizeF DestinationCoords, SizeF DestinationWH, SDL_Color ColourA, SDL_Color ColourB)
 {
     //We need a solid colour, thus texturing support is irrelevant. Also, this does not affect things we have already rendered.
     glDisable(GL_TEXTURE_2D);
     glBegin(GL_POLYGON);
         glColor4f(cast(float)ColourA.r / 255.0, cast(float)ColourA.g / 255.0,
-            cast(float)ColourA.b / 255.0, cast(float)ColourA.a / 255.0);
+            cast(float)ColourA.b / 255.0, cast(float)ColourA.unused / 255.0);
         glVertex2f(DestinationCoords.X, DestinationCoords.Y);
         glVertex2f(DestinationCoords.X + DestinationWH.X, DestinationCoords.Y);
         glColor4f(cast(float)ColourB.r / 255.0, cast(float)ColourB.g / 255.0,
-            cast(float)ColourB.b / 255.0, (float)ColourB.a / 255.0);
+            cast(float)ColourB.b / 255.0, cast(float)ColourB.unused / 255.0);
         glVertex2f(DestinationCoords.X + DestinationWH.X, DestinationCoords.Y + DestinationWH.Y);
         glVertex2f(DestinationCoords.X, DestinationCoords.Y + DestinationWH.Y);
     glEnd();

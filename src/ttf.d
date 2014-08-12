@@ -21,7 +21,12 @@ module ttf;
 import std.string;
 import std.conv;
 import derelict.sdl2.ttf;
+import derelict.sdl2.sdl;
+import derelict.opengl3.gl;
+import arco;
+import cards;
 import graphics;
+import opengl;
 
 enum FontSlots
 {
@@ -53,14 +58,14 @@ void InitTTF()
     DerelictSDL2ttf.load();
 
     if (TTF_Init() == -1)
-        throw new Exception("Error: ttf: InitTTF: Failed to init, "~TTF_GetError());
+        throw new Exception("Error: ttf: InitTTF: Failed to init: "~to!string(TTF_GetError()));
 
     Fonts[FontSlots.Description] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), FindOptimalFontSize());
     Fonts[FontSlots.Message] = TTF_OpenFont(GetCFilePath("fonts/FreeSansBold.ttf"), cast(int)(GetDrawScale()*2*20));
     Fonts[FontSlots.Title] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), cast(int)(GetDrawScale()*2*10));
     Fonts[FontSlots.Name] = TTF_OpenFont(GetCFilePath("fonts/FreeMono.ttf"), cast(int)(GetDrawScale()*2*11));//7
-    if (Fonts[Font_Description] == NULL)
-        throw new Exception("Error: ttf: InitTTF: Failed to load fonts, "~TTF_GetError());
+    if (!Fonts[FontSlots.Description])
+        throw new Exception("Error: ttf: InitTTF: Failed to load fonts: "~to!string(TTF_GetError()));
 
     NumberFonts[NumberSlots.Big] = TTF_OpenFont(GetCFilePath("fonts/FreeMonoBold.ttf"), cast(int)(GetDrawScale()*2*27));//17
     NumberFonts[NumberSlots.Medium] = TTF_OpenFont(GetCFilePath("fonts/FreeMonoBold.ttf"), cast(int)(GetDrawScale()*2*16));//10
@@ -119,7 +124,7 @@ void PrecacheDescriptionText()
                 SplitWords = split(Line);
                 foreach (int WordNum, string Word; SplitWords)
                 {
-                    TTF_SizeText(Fonts[FontSlots.Description], toStringz(Word), &WordLength, NULL);
+                    TTF_SizeText(Fonts[FontSlots.Description], toStringz(Word), &WordLength, null);
                     if ((LineLength == 0 && LineLength + WordLength > CardSize.X)
                         || (LineLength > 0 && LineLength + SpaceLength + WordLength > CardSize.X) // GEm: Next word won't fit,
                         || (WordNum == SplitWords.length - 1)) // GEm: or there are no more words left
@@ -132,7 +137,7 @@ void PrecacheDescriptionText()
 
                         CachedTexture.Texture = CurrentTexture;
                         CachedTexture.TextureSize = TextureSize;
-                        CardCache[PoolNum][CardNum].DescriptionTextures ~ CachedTexture;
+                        CardCache[PoolNum][CardNum].DescriptionTextures ~= CachedTexture;
 
                         LineLength = WordLength;
                     }
