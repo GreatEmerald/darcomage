@@ -57,7 +57,7 @@ void Init()
     //    Sound_Init();
 
     FrontendFunctions.PlayCardAnimation = &PlayCardAnimation;
-    SetPlayCardPostAnimation(&PlayCardPostAnimation);
+    FrontendFunctions.PlayCardPostAnimation = &PlayCardPostAnimation;
 
     InitGame(); //GEm: Init a 1vs1 game, will choose player types later
 }
