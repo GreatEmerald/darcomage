@@ -1022,6 +1022,74 @@ void DrawSmallNumber(int Number, SizeF Destination, SizeF BoundingBox)
         NumberCache[NumberSlots.Small][OnesDigit].TextureSize, AbsoluteSize, Destination, 1.0);
 }
 
+/**
+ * Draws the static menu elements and the buttons (all unselected).
+ */
+void DrawMenuBackground()
+{
+    int i;
+
+    DrawBackground();
+    DrawLogo();
+    for (i = 0; i < 6; i++)
+        DrawMenuItem(i, false);
+}
+
+/// Draw menu buttons.
+void DrawMenuItem(int Type, bool Lit)
+{
+    SDL_Rect SourceCoords;
+    SizeF DestinationCoords;
+    float ResX = cast(float)Config.ResolutionX;
+    float ResY = cast(float)Config.ResolutionY;
+    float DrawScale = GetDrawScale();
+
+    if (Type < 3)
+    {
+        SourceCoords.x = 0 + 250 * Lit;
+        SourceCoords.y = 108 * Type;
+        SourceCoords.w = 250;
+        SourceCoords.h = 108;
+        DestinationCoords.X = ((2.0 * Type + 1.0) / 6.0)
+            - ((cast(float)(SourceCoords.w * DrawScale) / ResX) / 2.0);
+        DestinationCoords.Y = ((130.0 / 600.0)
+            - (cast(float)(SourceCoords.h * DrawScale) / 600.0)) / 2.0;
+        //printf("Debug: DrawMenuItem: DestinationCoords.Y is %f\n", DestinationCoords.Y);
+    }
+    else
+    {
+        SourceCoords.x = 250 * 2 + 250 * Lit;
+        SourceCoords.y = 108 * (Type - 3);
+        SourceCoords.w = 250;
+        SourceCoords.h = 108;
+        DestinationCoords.X = ((2.0 * (Type - 3) + 1.0) / 6.0)
+            - ((cast(float)(SourceCoords.w * DrawScale) / ResX) / 2.0);
+        DestinationCoords.Y = ((600.0 - 130.0 / 2.0)
+            - cast(float)(SourceCoords.h * DrawScale) / 2.0) / 600.0;
+        //printf("Debug: DrawMenuItem: LOWER BUTTONS: DestinationCoords.Y is %f\n", DestinationCoords.Y);
+    }
+    DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
+        SourceCoords, DestinationCoords, DrawScale);
+}
+
+void DrawLogo()
+{
+    SDL_Rect ItemPosition;
+    SizeF ScreenPosition;
+    float DrawScale = GetDrawScale();
+
+    ScreenPosition.X = (800.0 / 2.0 - TextureCoordinates[GfxSlot.Title].X / 2.0) / 800.0;
+    ScreenPosition.Y = (600.0 / 2.0-TextureCoordinates[GfxSlot.Title].Y / 2.0) / 600.0;
+
+    ItemPosition.x = 0;
+    ItemPosition.y = 0;
+    ItemPosition.w = cast(int)TextureCoordinates[GfxSlot.Title].X;
+    ItemPosition.h = cast(int)TextureCoordinates[GfxSlot.Title].Y;
+
+    DrawTexture(GfxData[GfxSlot.Title], TextureCoordinates[GfxSlot.Title],
+        ItemPosition, ScreenPosition, DrawScale*2.0);
+}
+
 /// Pushes drawn content to the screen. Fast.
 void UpdateScreen()
 {

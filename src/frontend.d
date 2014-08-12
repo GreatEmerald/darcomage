@@ -59,7 +59,7 @@ void Init()
     FrontendFunctions.PlayCardAnimation = &PlayCardAnimation;
     FrontendFunctions.PlayCardPostAnimation = &PlayCardPostAnimation;
 
-    InitGame(); //GEm: Init a 1vs1 game, will choose player types later
+    initGame(); //GEm: Init a 1vs1 game, will choose player types later
 }
 
 /**
@@ -79,14 +79,14 @@ void MenuSelection()
     // GEm: Handle the button (still needs handling of all others than regular play!)
     switch (MenuAction)
     {
-        case START:
+        /*case START:
             // GEm: Should read the names from somewhere (config or input)
             // GEm: F...something should toggle fullscreen!
             SetPlayerInfo(Turn, "Player", 0); //GE: Set up a player VS AI game.
             SetPlayerInfo(GetEnemy(), "AI", 1);//Player[GetEnemy()].AI = 1;
             PrecachePlayerNames(); //GEm: We couldn't precache it earlier, since we didn't know the names!
 
-            DoGame();
+            DoGame();*/
 
         default: break;
     }
