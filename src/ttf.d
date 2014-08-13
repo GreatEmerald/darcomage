@@ -20,6 +20,7 @@
 module ttf;
 import std.string;
 import std.conv;
+import std.stdio;
 import derelict.sdl2.ttf;
 import derelict.sdl2.sdl;
 import derelict.opengl3.gl;
@@ -139,8 +140,12 @@ void PrecacheDescriptionText()
                         || (WordNum == SplitWords.length - 1)) // GEm: or there are no more words left
                     {
                         // GEm: This line is full, write to cache.
-                        for (i = 0; i < WordNum; i++)
+                        CurrentLine = SplitWords[0];
+                        for (i = 1; i <= WordNum; i++)
+                        {
+                            CurrentLine ~= " ";
                             CurrentLine ~= SplitWords[i];
+                        }
                         CurrentTexture = TextToTexture(Fonts[FontSlots.Description], CurrentLine);
                         TTF_SizeText(Fonts[FontSlots.Description], toStringz(CurrentLine), &(TextureSize.X), &(TextureSize.Y));
 
@@ -149,6 +154,7 @@ void PrecacheDescriptionText()
                         CardCache[PoolNum][CardNum].DescriptionTextures ~= CachedTexture;
 
                         LineLength = WordLength;
+                        CurrentLine = "";
                     }
                     else if (LineLength == 0)
                         LineLength += WordLength;
