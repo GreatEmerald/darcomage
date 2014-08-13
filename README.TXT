@@ -1,5 +1,5 @@
 SDL2 & D Arcomage Frontend (darcomage) 1.alpha
-Revision 2014.08.05, GreatEmerald
+Revision 2014.08.13, GreatEmerald
 
 This is the SDL 2.0 + OpenGL graphical frontend for the Arcomage Clone project.
 It handles all input, rendering and sound operations in the game.
@@ -57,20 +57,25 @@ Linux:
       not tested): http://dlang.org/download.html
     GNU Make (make)
     Embedded GNU C Library (libc6, glibc)
-    SDL 2.0 (Simple DirectMedia Layer, 2.0.12; libSDL2-devel on openSUSE)
+    SDL 2.0.3 (Simple DirectMedia Layer; libSDL2-devel on openSUSE)
     SDL 2.0 image (libSDL2_image-devel on openSUSE)
     SDL 2.0 TTF (2.0.10 preferred; libSDL2_ttf-devel on openSUSE)
     OpenGL (Mesa-devel on openSUSE)
+    Lua 5.1 (lua51-devel on openSUSE)
 
 DMD is needed because the frontend is written in the D language (and I simply
 haven't tested it with other compilers; testing and patches welcome).
 
 SDL is the component that handles all the input and output, which is exactly
 what a game frontend needs. SDL2 is the latest (at the moment) version of it,
-sporting some important improvements.
+sporting some important improvements. Note that you need at least 2.0.2 or
+2.0.3, 2.0.0 is not going to cut it.
 
 OpenGL is what is used to create fancy things, like a gradient background and
 dynamically scaled cards.
+
+Lua is just needed for the backend, libarcomage, since this is currently
+statically linked. The requirement might be dropped later.
     
 Why is D my primary language of choice? Well, when I started working on this
 project, I was primarily an UnrealScript coder (in case you're wondering,
