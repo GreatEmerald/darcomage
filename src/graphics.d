@@ -206,6 +206,8 @@ void PrecachePictures()
                 {
                     CardCache[PoolNum][CardNum].PictureTexture.Texture
                         = CardCache[PoolNum][EarlierCard].PictureTexture.Texture;
+                    CardCache[PoolNum][CardNum].PictureTexture.TextureSize
+                        = CardCache[PoolNum][EarlierCard].PictureTexture.TextureSize;
                     break;
                 }
             }
@@ -217,12 +219,10 @@ void PrecachePictures()
                 if (!Surface)
                     throw new Exception("graphics: PrecachePicture: Failed to load "~CurrentPath~": "~to!string(SDL_GetError()));
                 CardCache[PoolNum][CardNum].PictureTexture.Texture = SurfaceToTexture(Surface);
+                CardCache[PoolNum][CardNum].PictureTexture.TextureSize.X = (*Surface).w;
+                CardCache[PoolNum][CardNum].PictureTexture.TextureSize.Y = (*Surface).h;
                 SDL_FreeSurface(Surface);
             }
-            CardCache[PoolNum][CardNum].PictureTexture.TextureSize.X
-                = CardDB[PoolNum][CardNum].Picture.Coordinates.w;
-            CardCache[PoolNum][CardNum].PictureTexture.TextureSize.Y
-                = CardDB[PoolNum][CardNum].Picture.Coordinates.h;
         }
     }
 }
@@ -613,7 +613,10 @@ void DrawHandleCardAlpha(int Pool, int Card, float X, float Y, float Alpha)
     }
 
     //GEm: Draw card image.
-    ItemPosition = AbsoluteTextureSize(CardCache[Pool][Card].PictureTexture.TextureSize);
+    ItemPosition.x = CardDB[Pool][Card].Picture.Coordinates.x;
+    ItemPosition.y = CardDB[Pool][Card].Picture.Coordinates.y;
+    ItemPosition.w = CardDB[Pool][Card].Picture.Coordinates.w;
+    ItemPosition.h = CardDB[Pool][Card].Picture.Coordinates.h;
     BoundingBox.X = 88 / 800.0;
     BoundingBox.Y = 52 / 600.0;
     float CustomDrawScale = fmax(BoundingBox.X / (ItemPosition.w / ResX),
@@ -1040,7 +1043,7 @@ void DrawSmallNumber(int Number, SizeF Destination, SizeF BoundingBox)
     SDL_Rect AbsoluteSize;
     SizeF ObjectSize;
     int i;
-    float NumberLength;
+    float NumberLength = 0.0;
 
     int HundredsDigit, TensDigit, OnesDigit;
 
