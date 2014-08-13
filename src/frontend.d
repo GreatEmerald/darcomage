@@ -41,7 +41,7 @@ int main()
     catch (Exception e)
         writeln("Error: %s", e.msg);
     finally
-        {}//Quit();
+        Quit();
 
     return 0;
 }
@@ -64,6 +64,16 @@ void Init()
 }
 
 /**
+ * Game termination and memory cleanup.
+ */
+void Quit()
+{
+    QuitTTF();
+    QuitSDL();
+    //Sound_Quit();
+}
+
+/**
  * Main menu chooser.
  *
  * Defines what happens on each button press.
@@ -80,14 +90,16 @@ void MenuSelection()
     // GEm: Handle the button (still needs handling of all others than regular play!)
     switch (MenuAction)
     {
-        /*case MenuButton.Start:
+        case MenuButton.Start:
             // GEm: Should read the names from somewhere (config or input)
             // GEm: F...something should toggle fullscreen!
-            SetPlayerInfo(Turn, "Player", 0); //GE: Set up a player VS AI game.
-            SetPlayerInfo(GetEnemy(), "AI", 1);//Player[GetEnemy()].AI = 1;
+            Player[Turn].Name = "Player";
+            Player[Turn].AI = false;
+            Player[GetEnemy()].Name = "AI";
+            Player[GetEnemy()].AI = true;
             PrecachePlayerNames(); //GEm: We couldn't precache it earlier, since we didn't know the names!
 
-            DoGame();*/
+            DoGame();
 
         default: break;
     }

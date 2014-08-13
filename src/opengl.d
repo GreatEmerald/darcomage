@@ -127,6 +127,12 @@ GLuint SurfaceToTexture(SDL_Surface* surface)
     return texture;
 }
 
+void FreeTexture(GLuint Texture)
+{
+    if (glIsTexture(Texture))
+        glDeleteTextures(1, &Texture);
+}
+
 /**
  * Draw an OpenGL texture on the screen.
  * \param Texture The OpenGL texture handler.

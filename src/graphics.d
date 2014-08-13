@@ -26,6 +26,8 @@ import std.conv;
 import std.string;
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
+import derelict.sdl2.ttf;
+import derelict.opengl3.gl;
 import arco;
 import cards;
 import wrapper;
@@ -122,6 +124,18 @@ void InitSDL()
     LoadSurface("dlglooser.png", GfxSlot.DlgLoser);
 
     InitCardLocations(2);
+}
+
+void QuitSDL()
+{
+    int i;
+
+    //GEm: TODO: Free CardCache and all its textures
+    foreach (GLuint GfxDatum; GfxData)
+        FreeTexture(GfxDatum);
+
+    // GEm: TODO: Quit OpenGL
+    SDL_Quit();
 }
 
 void LoadSurface(string Filename, int Slot)
@@ -547,7 +561,7 @@ void DrawHandleCardAlpha(int Pool, int Card, float X, float Y, float Alpha)
     ScreenPosition.Y = Y + 72 / ResY;
     foreach (OpenGLTexture DescriptionTexture; CardCache[Pool][Card].DescriptionTextures)
         BlockHeight += DescriptionTexture.TextureSize.Y;
-    if (CardCache[Pool][Card].DescriptionTextures[CardCache[Pool][Card].DescriptionTextures.length].TextureSize.X > 66 * DrawScale * 2
+    if (CardCache[Pool][Card].DescriptionTextures[CardCache[Pool][Card].DescriptionTextures.length-1].TextureSize.X > 66 * DrawScale * 2
         && CardCache[Pool][Card].DescriptionTextures.length > 1
         && BlockHeight <= 41 * DrawScale * 2) //GEm: If we'd overlap with price and have enough space
         Spacing = ((41 * DrawScale * 2 - BlockHeight) / (CardCache[Pool][Card].DescriptionTextures.length+1)) / ResY;
@@ -1133,6 +1147,96 @@ void DrawLogo()
 
     DrawTexture(GfxData[GfxSlot.Title], TextureCoordinates[GfxSlot.Title],
         ItemPosition, ScreenPosition, DrawScale*2.0);
+}
+
+/**
+ * Draws a message box with the Message displayed (delimited by "\n")
+ */
+void DrawDialog(int Type, string Message)
+{
+    SizeF Position;
+    Size TextSize;
+    SizeF RelativeTextSize;
+    SizeF Resolution;
+
+    string[] Lines;
+
+    Resolution.X = cast(float)Config.ResolutionX;
+    Resolution.Y = cast(float)Config.ResolutionY;
+
+    Lines = splitLines(Message);
+
+    Position.X = 0.5 - TextureCoordinates[Type].X / Resolution.X / 2.0;
+    Position.Y = 0.5 - TextureCoordinates[Type].Y / Resolution.Y / 2.0;
+    DrawTexture(GfxData[Type], TextureCoordinates[Type],
+        AbsoluteTextureSize(TextureCoordinates[Type]), Position,
+        GetDrawScale()*2.0);
+
+    foreach (int i, string Line; Lines)
+    {
+        TTF_SizeText(Fonts[FontSlots.Message], toStringz(Line),
+            &(TextSize.X), &(TextSize.Y));
+        Position.X = 0.5 - TextSize.X / Resolution.X / 2.0;
+        Position.Y = 0.5 - TextSize.Y / Resolution.Y * Lines.length / 2.0
+            + TextSize.Y / Resolution.Y * i;
+        RelativeTextSize.X = TextSize.X / Resolution.X;
+        RelativeTextSize.Y = TextSize.Y / Resolution.Y;
+        DrawCustomTextCentred(Line, FontSlots.Message, Position, RelativeTextSize);
+    }
+
+        /*if (type!=DLGNETWORK) return NULL;
+
+        val[0]='_';val[1]=0;vallen=1;h=0; //GE: TODO: Input
+
+        while (!h)
+        {
+                rect.x=160;
+                rect.y=272;
+                rect.w=320;
+                rect.h=16;
+                //SDL_FillRect(GfxData[SCREEN],&rect,0);
+                i=BFont_TextWidth(val);*/
+                /*if (i<312)
+                        BFont_PutString(GfxData[SCREEN],164,276,val);
+                else
+                        BFont_PutString(GfxData[SCREEN],164+(312-i),276,val);
+                SDL_UpdateRect(GfxData[SCREEN],160,272,320,16);*/ //FIXME
+
+                /*while (event.type!=SDL_KEYDOWN)
+                {
+                        SDL_PollEvent(&event);          // wait for keypress
+                        SDL_Delay(CPUWAIT);
+                }
+                if (event.type==SDL_KEYDOWN)
+                {
+                        i=ValidInputChar(event.key.keysym.sym);
+                        if (i&&(vallen<4095))
+                        {
+                                val[vallen-1]=i;
+                                val[vallen++]='_';
+                                val[vallen]=0;
+                        }
+                        if (((vallen>1)&&(event.key.keysym.sym==SDLK_BACKSPACE))||(event.key.keysym.sym==SDLK_DELETE))
+                        {
+                                val[--vallen]=0;
+                                val[vallen-1]='_';
+                        }
+                        if ((event.key.keysym.sym==SDLK_KP_ENTER)||(event.key.keysym.sym==SDLK_RETURN)) h=1;
+                        if (event.key.keysym.sym==SDLK_ESCAPE) h=2;
+                        while (event.type!=SDL_KEYUP)
+                        {
+                                SDL_PollEvent(&event);  // wait for keyrelease
+                                        SDL_Delay(CPUWAIT);
+                        }
+                }
+        }
+        if (h==2)
+                return NULL;
+        else
+        {
+                val[vallen-1]=0;
+                return val;
+        }*/
 }
 
 /// Pushes drawn content to the screen. Fast.

@@ -20,7 +20,9 @@
 module input;
 import derelict.sdl2.sdl;
 import arco;
+import cards;
 import graphics;
+import opengl;
 
 enum MenuButton
 {
@@ -125,6 +127,150 @@ int Menu()
         SDL_Delay(0);//CPUWAIT); //GE: FIXME: This is not the same between platforms and causes major lag in Linux.
     }
     return value;
+}
+
+/**
+ * The main input loop in the game.
+ *
+ * Includes the event loop, victory/loss handling, AI and eventually network support.
+ */
+void DoGame()
+{
+    int n;
+    int CardToPlay, netcard;
+    bool bDiscarded, bAllowedToPlay;
+
+    while (!IsVictorious(0) && !IsVictorious(1))
+    {
+        DrawScene();
+        UpdateScreen();
+
+        while (SDL_PollEvent(&event))
+        {} //GE: Delete all events from the event queue before our turn.
+
+        if (Player[Turn].AI)
+        {
+            SDL_Delay(500); // GEm: Let's pretend we're "thinking" so those organics would feel better.
+            AIPlay();
+        } /*else //GEm: TODO Netplay
+        if (turn==netplayer)
+        {
+            if (NetRemPlay(&i,&discrd) && CanPlayCard(i,discrd))
+                        {
+                                PlayCardAnimation(i, discrd);
+                                PlayCard(i,discrd);
+                        }
+            else {
+                DrawDialog(DLGERROR,"Server dropped connection ...");
+                WaitForInput();
+                return;
+            }
+        } */
+        else
+        {
+            while (!SDL_PollEvent(&event))
+                SDL_Delay(0); //GEm: HACK
+            if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE) //GEm: Return if Esc is pressed.
+                return;
+            /*if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_b) //GE: Keeping as "down" since it's urgent ;)
+                Boss();*/ //GEm: TODO boss screen
+            /*if ( event.type == SDL_MOUSEMOTION && InRect(event.motion.x, event.motion.y,   8,342,  8+94,468) ) //GE: Support for highlighting cards, to be done: card tooltips.
+            {
+                Blit(SCREEN, BUFFER);
+                UpdateScreen();
+                bRefreshNeeded=1;
+            }
+            else if(bRefreshNeeded)
+            {
+                RedrawScreen(turn, Player);
+                bRefreshNeeded=0;
+            }*/ //GEm: TODO: Card highlighting
+
+            if (event.type != SDL_MOUSEBUTTONUP || event.button.button > 3)
+            {
+                SDL_Delay(0); //GEm: HACK
+                continue;
+            }
+            bDiscarded = (event.button.button == 2) || (event.button.button == 3);
+            foreach (int i, SizeF CardLocation; CardLocations[Turn])
+            {
+                if (FInRect(event.button.x / cast(float)Config.ResolutionX, event.button.y / cast(float)Config.ResolutionY,
+                    CardLocation.X, CardLocation.Y,
+                    CardLocation.X + 94 / 800.0, CardLocation.Y + 128 / 600.0)
+                    /*&&  GetCanPlayCard(Turn, i, bDiscarded)*/)
+                {
+                    CardToPlay = i;
+                    bAllowedToPlay = true; //GEm: This only checks for special conditions, not resources!
+                    break;
+                }
+            }
+            //netcard = Player[turn].Hand[crd];//GEm: TODO: Netplay
+            if (bAllowedToPlay)
+            {
+                PlayCard(CardToPlay, bDiscarded);
+                bAllowedToPlay = false;
+            }
+
+            /*if (netplayer!=-1)
+                NetLocPlay(crd,discrd,netcard);*/ //GEm: TODO: Netplay
+        }
+        SDL_Delay(10); // GEm: TODO: Configurable framerate
+    }
+
+    //printf("DoGame(): Info: Game ended: Red gets %d, blue gets %d!\n", IsVictorious(0), IsVictorious(1));
+    DrawScene();
+    if (IsVictorious(0) && IsVictorious(1))
+    {
+        DrawDialog(GfxSlot.DlgWinner, "Draw!");
+        //Sound_Play(VICTORY); //GEm: TODO: Sound
+    }
+    else
+    {
+        if (Player[1].AI)              // 1 local Player //GEm: TODO: more than 2 players
+        {
+            //i=aiplayer;if (i==-1) i=netplayer;i=!i; //GEm: TODO: Networking support
+            if (IsVictorious(0))
+            {
+                if (Player[0].Tower >= Config.TowerVictory)
+                    DrawDialog(GfxSlot.DlgWinner, "You win by a\ntower building victory!");
+                else if (Player[1].Tower <= 0)
+                    DrawDialog(GfxSlot.DlgWinner, "You win by a tower\ndestruction victory!");
+                else DrawDialog(GfxSlot.DlgWinner, "You win by a\nresource victory!");
+                //Sound_Play(VICTORY);
+            }
+            else
+            {
+                if (Player[1].Tower >= Config.TowerVictory)
+                    DrawDialog(GfxSlot.DlgLoser, "You lose by a\ntower building defeat!");
+                else if (Player[0].Tower <= 0)
+                    DrawDialog(GfxSlot.DlgLoser, "You lose by a\ntower destruction defeat!");
+                else DrawDialog(GfxSlot.DlgLoser, "You lose by a\nresource defeat!");
+                //Sound_Play(DEFEAT);
+            }
+        } else {                                         // 2 local Players
+            if (IsVictorious(0))
+                DrawDialog(GfxSlot.DlgWinner, "Winner is\n"~Player[0].Name~"!");
+            else
+                DrawDialog(GfxSlot.DlgWinner, "Winner is\n"~Player[1].Name~"!");
+            //Sound_Play(VICTORY);
+        }
+    }
+    UpdateScreen();
+    SDL_Delay(1000);
+    while (SDL_PollEvent(&event))
+    {}
+    WaitForInput();
+}
+
+void WaitForInput()
+{
+    SDL_PumpEvents();
+    do
+    {
+        SDL_PollEvent(&event);
+        SDL_Delay(10); // GEm: TODO: Configurable framerate
+    } while (!((event.type == SDL_KEYUP) || ((event.type == SDL_MOUSEBUTTONUP) && (event.button.button == SDL_BUTTON_LEFT))));
+    SDL_PumpEvents();
 }
 
 bool FInRect(float x, float y, float x1, float y1, float x2, float y2)

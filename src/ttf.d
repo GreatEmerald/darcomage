@@ -74,6 +74,15 @@ void InitTTF()
     PrecacheCards();
 }
 
+void QuitTTF()
+{
+    foreach (TTF_Font* Font; Fonts)
+        TTF_CloseFont(Font);
+    foreach (TTF_Font* NumberFont; NumberFonts)
+        TTF_CloseFont(NumberFont);
+    TTF_Quit();
+}
+
 void PrecacheFonts()
 {
     PrecacheTitleText();
@@ -219,6 +228,29 @@ void PrecachePlayerNames()
         NameCache[i].Texture = TextToTextureColour(Fonts[FontSlots.Name], Player[i].Name, Colour);
         TTF_SizeText(Fonts[FontSlots.Name], toStringz(Player[i].Name), &(NameCache[i].TextureSize.X), &(NameCache[i].TextureSize.Y));
     }
+}
+
+/**
+ * Draws specified text in a specified font and specified position
+ */
+void DrawCustomTextCentred(string Text, int FontType, SizeF BoxLocation, SizeF BoxSize)
+{
+    GLuint Texture;
+    Size TextureSize;
+    SizeF RelativeSize;
+
+    SDL_Color Colour = {255, 255, 255};
+    Texture = TextToTextureColour(Fonts[FontType], Text, Colour);
+
+    TTF_SizeText(Fonts[FontSlots.Message], toStringz(Text), &(TextureSize.X), &(TextureSize.Y));
+    RelativeSize.X = TextureSize.X / cast(float)Config.ResolutionX;
+    RelativeSize.Y = TextureSize.Y / cast(float)Config.ResolutionY;
+    BoxLocation = CentreOnX(BoxLocation, RelativeSize, BoxSize);
+
+    DrawTexture(Texture, TextureSize, AbsoluteTextureSize(TextureSize), BoxLocation, 1.0);
+
+    /* Clean up */
+    glDeleteTextures(1, &Texture);
 }
 
 /**
