@@ -117,7 +117,7 @@ void PrecacheDescriptionText()
     GLuint CurrentTexture;
     Size TextureSize;
     OpenGLTexture CachedTexture;
-    int i;
+    int i, LastLineEnd;
 
     CardSize.X = cast(int)(GetDrawScale()*2*88);
     CardSize.Y = cast(int)(GetDrawScale()*2*53);
@@ -131,6 +131,7 @@ void PrecacheDescriptionText()
             SplitLines = split(CurrentCard.Description, "\n");
             foreach (string Line; SplitLines)
             {
+                LastLineEnd = -1;
                 SplitWords = split(Line);
                 foreach (int WordNum, string Word; SplitWords)
                 {
@@ -140,8 +141,8 @@ void PrecacheDescriptionText()
                         || (WordNum == SplitWords.length - 1)) // GEm: or there are no more words left
                     {
                         // GEm: This line is full, write to cache.
-                        CurrentLine = SplitWords[0];
-                        for (i = 1; i <= WordNum; i++)
+                        CurrentLine = SplitWords[LastLineEnd+1];
+                        for (i = LastLineEnd + 2; i <= WordNum; i++)
                         {
                             CurrentLine ~= " ";
                             CurrentLine ~= SplitWords[i];
@@ -153,7 +154,8 @@ void PrecacheDescriptionText()
                         CachedTexture.TextureSize = TextureSize;
                         CardCache[PoolNum][CardNum].DescriptionTextures ~= CachedTexture;
 
-                        LineLength = WordLength;
+                        LineLength = 0;
+                        LastLineEnd = WordNum;
                         CurrentLine = "";
                     }
                     else if (LineLength == 0)
