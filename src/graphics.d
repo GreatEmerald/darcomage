@@ -75,7 +75,7 @@ void InitSDL()
     DerelictSDL2Image.load();
 
     // GEm: No worries about parachutes in SDL2, woo!
-    if (SDL_Init(SDL_INIT_VIDEO) < 0)
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_AUDIO) < 0)
         throw new Exception("SDLInit: Couldn't initialise SDL: "~to!string(SDL_GetError())); // GEm: Throwing things like a boss!
 
     // GEm: A nicer way to get ourselves a window to play in!

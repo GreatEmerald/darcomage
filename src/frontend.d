@@ -24,6 +24,7 @@ import cards;
 import graphics;
 import ttf;
 import input;
+import sound;
 
 /**
  * Entry function.
@@ -54,8 +55,8 @@ void Init()
     InitArcomage(); //GEm: Init libarcomage
     InitSDL(); // GEm: Init SDL2
     InitTTF(); // GEm: Init SDL2 TTF
-    //if (Config.SoundEnabled)
-    //    Sound_Init();
+    if (Config.SoundEnabled)
+        InitSound();
 
     FrontendFunctions.PlayCardAnimation = &PlayCardAnimation;
     FrontendFunctions.PlayCardPostAnimation = &PlayCardPostAnimation;
@@ -68,9 +69,9 @@ void Init()
  */
 void Quit()
 {
+    QuitSound();
     QuitTTF();
     QuitSDL();
-    //Sound_Quit();
 }
 
 /**

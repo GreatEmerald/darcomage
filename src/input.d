@@ -23,6 +23,7 @@ import arco;
 import cards;
 import graphics;
 import opengl;
+import sound;
 
 enum MenuButton
 {
@@ -47,7 +48,7 @@ int Menu()
     DrawMenuBackground();
     UpdateScreen();
 
-    //Sound_Play(TITLE);
+    PlaySound(SoundSlot.Title);
 
     while (value == -1)
     {
