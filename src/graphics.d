@@ -33,6 +33,7 @@ import cards;
 import wrapper;
 import opengl;
 import ttf;
+import sound;
 
 SDL_Window* Window;
 SDL_GLContext OGLContext;
@@ -244,6 +245,8 @@ extern (C) void PlayCardAnimation(int CardPlace, char bDiscarded, char bSameTurn
     StartTime = CurrentTime = Clock.currTime.stdTime;
     BankLocation = GetCardOnTableLocation(0);
 
+    PlaySound(SoundSlot.Deal);
+
     while (CurrentTime < StartTime + AnimDuration)
     {
         ClearScreen();
@@ -342,6 +345,8 @@ extern (C) void PlayCardPostAnimation(int CardPlace)
     float ElapsedPercentage;
     SizeF BankLocation = GetCardOnTableLocation(0);
 
+    PlaySound(SoundSlot.Deal);
+
     while (CurrentTime < StartTime + AnimDuration) //GEm: Move transient card to the table
     {
         ClearScreen();
@@ -378,6 +383,8 @@ extern (C) void PlayCardPostAnimation(int CardPlace)
     CardLocations[Turn][CardPlace].Y = (uniform(-6.0, 6.0) + (6 + 466 * !Turn)) / 600.0; //GEm: TODO implement more than 2 players
     Destination.X = CardLocations[Turn][CardPlace].X;
     Destination.Y = CardLocations[Turn][CardPlace].Y;
+
+    PlaySound(SoundSlot.Deal);
 
     while (CurrentTime < StartTime + AnimDuration) //GEm: Move a folded card from bank to hand
     {

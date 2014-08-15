@@ -57,10 +57,32 @@ void InitSound()
     if (Config.UseOriginalCards)
     {
         LoadSound("titleO.wav", SoundSlot.Title);
+        LoadSound("dealO.wav", SoundSlot.Deal);
+        LoadSound("shuffleO.wav", SoundSlot.Shuffle);
+        LoadSound("tower_upO.wav", SoundSlot.TowerUp);
+        LoadSound("wall_upO.wav", SoundSlot.WallUp);
+        LoadSound("damageO.wav", SoundSlot.Damage);
+        LoadSound("resb_upO.wav", SoundSlot.FacilityUp);
+        LoadSound("resb_downO.wav", SoundSlot.FacilityDown);
+        LoadSound("ress_upO.wav", SoundSlot.ResourceUp);
+        LoadSound("ress_downO.wav", SoundSlot.ResourceDown);
+        LoadSound("victoryO.wav", SoundSlot.Victory);
+        LoadSound("defeatO.wav", SoundSlot.Defeat);
     }
     else
     {
         LoadSound("title.wav", SoundSlot.Title);
+        LoadSound("deal.wav", SoundSlot.Deal);
+        LoadSound("shuffle.wav", SoundSlot.Shuffle);
+        LoadSound("tower_up.wav", SoundSlot.TowerUp);
+        LoadSound("wall_up.wav", SoundSlot.WallUp);
+        LoadSound("damage.wav", SoundSlot.Damage);
+        LoadSound("resb_up.wav", SoundSlot.FacilityUp);
+        LoadSound("resb_down.wav", SoundSlot.FacilityDown);
+        LoadSound("ress_up.wav", SoundSlot.ResourceUp);
+        LoadSound("ress_down.wav", SoundSlot.ResourceDown);
+        LoadSound("victory.wav", SoundSlot.Victory);
+        LoadSound("defeat.wav", SoundSlot.Defeat);
     }
 }
 

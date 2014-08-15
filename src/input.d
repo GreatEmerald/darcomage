@@ -223,7 +223,7 @@ void DoGame()
     if (IsVictorious(0) && IsVictorious(1))
     {
         DrawDialog(GfxSlot.DlgWinner, "Draw!");
-        //Sound_Play(VICTORY); //GEm: TODO: Sound
+        PlaySound(SoundSlot.Victory);
     }
     else
     {
@@ -237,7 +237,7 @@ void DoGame()
                 else if (Player[1].Tower <= 0)
                     DrawDialog(GfxSlot.DlgWinner, "You win by a tower\ndestruction victory!");
                 else DrawDialog(GfxSlot.DlgWinner, "You win by a\nresource victory!");
-                //Sound_Play(VICTORY);
+                PlaySound(SoundSlot.Victory);
             }
             else
             {
@@ -246,14 +246,14 @@ void DoGame()
                 else if (Player[0].Tower <= 0)
                     DrawDialog(GfxSlot.DlgLoser, "You lose by a\ntower destruction defeat!");
                 else DrawDialog(GfxSlot.DlgLoser, "You lose by a\nresource defeat!");
-                //Sound_Play(DEFEAT);
+                PlaySound(SoundSlot.Defeat);
             }
         } else {                                         // 2 local Players
             if (IsVictorious(0))
                 DrawDialog(GfxSlot.DlgWinner, "Winner is\n"~Player[0].Name~"!");
             else
                 DrawDialog(GfxSlot.DlgWinner, "Winner is\n"~Player[1].Name~"!");
-            //Sound_Play(VICTORY);
+            PlaySound(SoundSlot.Victory);
         }
     }
     UpdateScreen();
