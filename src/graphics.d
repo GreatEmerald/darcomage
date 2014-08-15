@@ -800,14 +800,14 @@ void DrawUI()
     ItemPosition.h = cast(int)(94 + 200 * (Player[0].Tower / cast(float)Config.TowerVictory)); //GEm: TODO: Implement more than 2 players
 
     ScreenPosition.X = 92.0 / 800.0;
-    ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h) / 600.0;
+    ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h * 284.0 / 294.0) / 600.0;
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
         ItemPosition, ScreenPosition, DrawScale * 2.0 * 284.0 / 294.0);
 
     ItemPosition.x = 1068;
     ItemPosition.h = cast(int)(94 + 200 * (Player[1].Tower / cast(float)Config.TowerVictory));
     ScreenPosition.X = (800.0 - ItemPosition.w - 92.0) / 800.0;
-    ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h) / 600.0;
+    ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h * 284.0 / 294.0) / 600.0;
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
         ItemPosition, ScreenPosition, DrawScale * 2.0 * 284.0 / 294.0);
 
@@ -815,18 +815,24 @@ void DrawUI()
     ItemPosition.x = 1136;
     ItemPosition.y = 0;
     ItemPosition.w = 45;
-    ItemPosition.h = cast(int)(38 + 200 * (Player[0].Wall / cast(float)Config.MaxWall));
 
-    ScreenPosition.X = 162.0 / 800.0;
-    ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h) / 600.0;
-    DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
-        ItemPosition, ScreenPosition, DrawScale * 2.0 * 284.0 / 294.0);
+    if (Player[0].Wall > 0)
+    {
+        ItemPosition.h = cast(int)(38 + 200 * (Player[0].Wall / cast(float)Config.MaxWall));
+        ScreenPosition.X = 162.0 / 800.0;
+        ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h * 284.0 / 294.0) / 600.0;
+        DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
+            ItemPosition, ScreenPosition, DrawScale * 2.0 * 284.0 / 294.0);
+    }
 
-    ItemPosition.h = cast(int)(38 + 200 * (Player[1].Wall / cast(float)Config.MaxWall));
-    ScreenPosition.X = (800.0 - ItemPosition.w - 162.0) / 800.0;
-    ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h) / 600.0;
-    DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
-        ItemPosition, ScreenPosition, DrawScale * 2.0 * 284.0 / 294.0);
+    if (Player[1].Wall > 0)
+    {
+        ItemPosition.h = cast(int)(38 + 200 * (Player[1].Wall / cast(float)Config.MaxWall));
+        ScreenPosition.X = (800.0 - ItemPosition.w - 162.0) / 800.0;
+        ScreenPosition.Y = (433.0 - cast(float)ItemPosition.h * 284.0 / 294.0) / 600.0;
+        DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
+            ItemPosition, ScreenPosition, DrawScale * 2.0 * 284.0 / 294.0);
+    }
 
     //GE: Draw the tower/wall boxes
     //GE: Tower
