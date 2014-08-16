@@ -99,6 +99,40 @@ void PlaySound(int Slot)
         writeln("Warning: sound: PlaySound: Couldn't play sound "~to!string(Slot)~": "~to!string(Mix_GetError()));
 }
 
+extern(C) void PlayResourceSound(int Type)
+{
+    switch (Type)
+    {
+        case SoundTypes.Damage:
+            PlaySound(SoundSlot.Damage);
+            return;
+        case SoundTypes.ResB_Up:
+            PlaySound(SoundSlot.FacilityUp);
+            return;
+        case SoundTypes.ResS_Up:
+            PlaySound(SoundSlot.ResourceUp);
+            return;
+        case SoundTypes.Tower_Up:
+            PlaySound(SoundSlot.TowerUp);
+            return;
+        case SoundTypes.Wall_Up:
+            PlaySound(SoundSlot.WallUp);
+            return;
+        case SoundTypes.ResB_Down:
+            PlaySound(SoundSlot.FacilityDown);
+            return;
+        case SoundTypes.ResS_Down:
+            PlaySound(SoundSlot.ResourceDown);
+            return;
+        case SoundTypes.Shuffle:
+            PlaySound(SoundSlot.Shuffle);
+            return;
+        default:
+            writeln("Warning: sound: PlayResourceSound: Unknown sound type "~to!string(Type));
+            return;
+    }
+}
+
 void QuitSound()
 {
     Mix_HaltChannel(-1);
