@@ -213,8 +213,7 @@ void PrecachePictures()
                 }
             }
             // GEm: If we had no duplicates, do the heavy lifting ourselves
-            if (CardNum == 0 || CardCache[PoolNum][CardNum].PictureTexture.Texture
-                != CardCache[PoolNum][EarlierCard].PictureTexture.Texture)
+            if (CardCache[PoolNum][CardNum].PictureTexture.Texture == 0)
             {
                 Surface = IMG_Load(toStringz(CurrentPath));
                 if (!Surface)

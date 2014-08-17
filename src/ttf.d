@@ -111,18 +111,10 @@ void PrecacheDescriptionText()
 {
     Size CardSize;
     string[] SplitLines, SplitWords;
-    int WordLength, LineLength, SpaceLength;
-    int LineHeight;
+    int LineLength;
     string CurrentLine;
-    GLuint CurrentTexture;
-    Size TextureSize;
-    OpenGLTexture CachedTexture;
-    int i, LastLineEnd;
 
-    CardSize.X = cast(int)(GetDrawScale()*2*88);
-    CardSize.Y = cast(int)(GetDrawScale()*2*53);
-
-    TTF_SizeText(Fonts[FontSlots.Description], toStringz(" "), &SpaceLength, &LineHeight);
+    CardSize.X = cast(int)(GetDrawScale()*2*96);
 
     foreach (int PoolNum, CardInfo[] Cards; CardDB)
     {
@@ -131,41 +123,56 @@ void PrecacheDescriptionText()
             SplitLines = split(CurrentCard.Description, "\n");
             foreach (string Line; SplitLines)
             {
-                LastLineEnd = -1;
+                CurrentLine = "";
                 SplitWords = split(Line);
                 foreach (int WordNum, string Word; SplitWords)
                 {
-                    TTF_SizeText(Fonts[FontSlots.Description], toStringz(Word), &WordLength, null);
-                    if ((LineLength == 0 && LineLength + WordLength > CardSize.X)
-                        || (LineLength > 0 && LineLength + SpaceLength + WordLength > CardSize.X) // GEm: Next word won't fit,
-                        || (WordNum == SplitWords.length - 1)) // GEm: or there are no more words left
+                    if (WordNum == 0)
                     {
-                        // GEm: This line is full, write to cache.
-                        CurrentLine = SplitWords[LastLineEnd+1];
-                        for (i = LastLineEnd + 2; i <= WordNum; i++)
-                        {
-                            CurrentLine ~= " ";
-                            CurrentLine ~= SplitWords[i];
-                        }
-                        CurrentTexture = TextToTexture(Fonts[FontSlots.Description], CurrentLine);
-                        TTF_SizeText(Fonts[FontSlots.Description], toStringz(CurrentLine), &(TextureSize.X), &(TextureSize.Y));
-
-                        CachedTexture.Texture = CurrentTexture;
-                        CachedTexture.TextureSize = TextureSize;
-                        CardCache[PoolNum][CardNum].DescriptionTextures ~= CachedTexture;
-
-                        LineLength = 0;
-                        LastLineEnd = WordNum;
-                        CurrentLine = "";
+                        // GEm: We always assume the first word fits.
+                        CurrentLine = Word;
+                        // GEm: If this is both the first and last word in the line, automatically write.
+                        if (WordNum == SplitWords.length - 1)
+                            CacheDescription(PoolNum, CardNum, CurrentLine);
+                        continue;
                     }
-                    else if (LineLength == 0)
-                        LineLength += WordLength;
                     else
-                        LineLength += SpaceLength + WordLength;
+                        TTF_SizeText(Fonts[FontSlots.Description], toStringz(CurrentLine~" "~Word), &LineLength, null);
+
+                    // GEm: Will adding one more word make it not fit the card?
+                    if (LineLength > CardSize.X)
+                    {
+                        // GEm: Write CurrentLine
+                        CacheDescription(PoolNum, CardNum, CurrentLine);
+                        CurrentLine = Word;
+                    }
+                    else
+                        CurrentLine ~= " "~Word;
+
+                    // GEm: Are we at the end of the line already?
+                    if (WordNum == SplitWords.length - 1)
+                    {
+                        // GEm: Write whatever is left.
+                        CacheDescription(PoolNum, CardNum, CurrentLine);
+                    }
                 }
             }
         }
     }
+}
+
+void CacheDescription(int PoolNum, int CardNum, string Text)
+{
+    GLuint CurrentTexture;
+    Size TextureSize;
+    OpenGLTexture CachedTexture;
+
+    CurrentTexture = TextToTexture(Fonts[FontSlots.Description], Text);
+    TTF_SizeText(Fonts[FontSlots.Description], toStringz(Text), &(TextureSize.X), &(TextureSize.Y));
+
+    CachedTexture.Texture = CurrentTexture;
+    CachedTexture.TextureSize = TextureSize;
+    CardCache[PoolNum][CardNum].DescriptionTextures ~= CachedTexture;
 }
 
 void PrecachePriceText()
