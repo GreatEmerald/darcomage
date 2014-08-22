@@ -28,8 +28,8 @@ import sound;
 enum MenuButton
 {
     Start,
-    Hotseat,
     Multiplayer,
+    Hotseat,
     Score,
     Credits,
     Quit

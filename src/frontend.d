@@ -61,8 +61,6 @@ void Init()
     FrontendFunctions.PlayCardAnimation = &PlayCardAnimation;
     FrontendFunctions.PlayCardPostAnimation = &PlayCardPostAnimation;
     FrontendFunctions.SoundPlay = &PlayResourceSound;
-
-    initGame(); //GEm: Init a 1vs1 game, will choose player types later
 }
 
 /**
@@ -93,6 +91,7 @@ void MenuSelection()
     switch (MenuAction)
     {
         case MenuButton.Start:
+            initGame();
             // GEm: Should read the names from somewhere (config or input)
             // GEm: F...something should toggle fullscreen!
             Player[Turn].Name = "Player";
@@ -102,6 +101,18 @@ void MenuSelection()
             PrecachePlayerNames(); //GEm: We couldn't precache it earlier, since we didn't know the names!
 
             DoGame();
+            break;
+        case MenuButton.Hotseat:
+            initGame();
+            // GEm: Should read the names from somewhere (config or input)
+            Player[Turn].Name = "Player 1";
+            Player[Turn].AI = false;
+            Player[GetEnemy()].Name = "Player 2";
+            Player[GetEnemy()].AI = false;
+            PrecachePlayerNames(); //GEm: We couldn't precache it earlier, since we didn't know the names!
+
+            DoGame();
+            break;
 
         default: break;
     }

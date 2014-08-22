@@ -114,7 +114,7 @@ void PrecacheDescriptionText()
     int LineLength;
     string CurrentLine;
 
-    CardSize.X = cast(int)(GetDrawScale()*2*96);
+    CardSize.X = cast(int)(GetDrawScale()*2*92);
 
     foreach (int PoolNum, CardInfo[] Cards; CardDB)
     {
