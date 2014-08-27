@@ -686,6 +686,14 @@ void DrawPlayerCards(int ExcludePlayer, int ExcludeCard)
         {
             if (n == ExcludePlayer && i == ExcludeCard)
                 continue;
+
+            if (Player[n].AI
+                || (!Player[0].AI && !Player[1].AI && n != Turn))
+            {
+                DrawFolded(n, CardLocations[n][i]);
+                continue;
+            }
+
             if (CanAffordCard(Player[n].Hand[i], n))
                 DrawCard(n, i, CardLocations[n][i].X, CardLocations[n][i].Y);
             else
