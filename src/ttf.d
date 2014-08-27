@@ -21,6 +21,7 @@ module ttf;
 import std.string;
 import std.conv;
 import std.stdio;
+import std.math;
 import derelict.sdl2.ttf;
 import derelict.sdl2.sdl;
 import derelict.opengl3.gl;
@@ -61,9 +62,9 @@ void InitTTF()
     if (TTF_Init() == -1)
         throw new Exception("Error: ttf: InitTTF: Failed to init: "~to!string(TTF_GetError()));
 
-    Fonts[FontSlots.Description] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), FindOptimalFontSize());
+    Fonts[FontSlots.Description] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), cast(int)(GetDrawScale()*2*10));
     Fonts[FontSlots.Message] = TTF_OpenFont(GetCFilePath("fonts/FreeSansBold.ttf"), cast(int)(GetDrawScale()*2*20));
-    Fonts[FontSlots.Title] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), cast(int)(GetDrawScale()*2*10));
+    Fonts[FontSlots.Title] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), FindOptimalFontSize());
     Fonts[FontSlots.Name] = TTF_OpenFont(GetCFilePath("fonts/FreeMono.ttf"), cast(int)(GetDrawScale()*2*11));//7
     if (!Fonts[FontSlots.Description])
         throw new Exception("Error: ttf: InitTTF: Failed to load fonts: "~to!string(TTF_GetError()));
@@ -292,8 +293,28 @@ GLuint TextToTexture(TTF_Font* Font, string Text)
     return TextToTextureColour(Font, Text, Colour);
 }
 
-// GEm: See Arcomage Clone for a clever but slow algorithm, 10 works for Arcomage
+/**
+ * Finds the best card name font size for the current resolution and deck.
+ */
 int FindOptimalFontSize()
 {
-    return 10;
+    Size CardSize;
+    int LineLength;
+    TTF_Font* ProbeFont;
+    int InitialSize = cast(int)(GetDrawScale()*2*10);
+    float FontScaler = 1.0;
+
+    CardSize.X = cast(int)(GetDrawScale()*2*92);
+    ProbeFont = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), InitialSize);
+
+    foreach (CardInfo[] Cards; CardDB)
+    {
+        foreach (CardInfo CurrentCard; Cards)
+        {
+            TTF_SizeText(ProbeFont, toStringz(CurrentCard.Name), &LineLength, null);
+            FontScaler = fmin(FontScaler, cast(float)CardSize.X / cast(float)LineLength);
+        }
+    }
+    TTF_CloseFont(ProbeFont);
+    return cast(int)(cast(float)InitialSize * FontScaler);
 }
