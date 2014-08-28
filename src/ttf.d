@@ -277,7 +277,7 @@ GLuint TextToTextureColour(TTF_Font* Font, string Text, SDL_Color Colour)
     SDL_Surface* Initial;
     GLuint Texture;
 
-    Initial = TTF_RenderText_Blended(Font, toStringz(Text), Colour);
+    Initial = TTF_RenderUTF8_Blended(Font, toStringz(Text), Colour);
     Texture = SurfaceToTexture(Initial);
 
     SDL_FreeSurface(Initial);

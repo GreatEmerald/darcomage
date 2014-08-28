@@ -54,7 +54,7 @@ void InitDerelictGL3()
     DerelictGL.load();
     /* GEm: Technically would need to reload to load up non-OpenGL 1.1
             functions. Except we don't use any! Also no sense in checking if we
-            have at least OpenGL 1.1 available because Derelict only suspports
+            have at least OpenGL 1.1 available because Derelict only supports
             OpenGL 1.1 or above, not plain 1.0. */
 }
 
