@@ -231,6 +231,36 @@ void DrawGradient(SizeF DestinationCoords, SizeF DestinationWH, SDL_Color Colour
     glEnable(GL_TEXTURE_2D);
 }
 
+/**
+ * Draws a 1px+ border of a rectangle, in the given rectangle.
+ *
+ * Fairly hackily, by drawing four rectangles. Could be done more neatly using
+ * a texture, but a rectangle isn't regarded as a texture.
+ */
+void DrawHollowRectangle(SizeF DestinationCoords, SizeF DestinationWH, SDL_Color Colour)
+{
+    SizeF NewSize = DestinationWH;
+    SizeF NewDestination = DestinationCoords;
+
+    NewSize.X = 1.0 / 800.0;
+    DrawRectangle(DestinationCoords, NewSize, Colour);
+
+    NewSize = DestinationWH;
+    NewSize.Y = 1.0 / 600.0;
+    DrawRectangle(DestinationCoords, NewSize, Colour);
+
+    NewSize = DestinationWH;
+    NewDestination.Y += DestinationWH.Y;
+    NewSize.Y = 1.0 / 800.0;
+    DrawRectangle(NewDestination, NewSize, Colour);
+
+    NewDestination = DestinationCoords;
+    NewSize = DestinationWH;
+    NewDestination.X += DestinationWH.X;
+    NewSize.X = 1.0 / 600.0;
+    DrawRectangle(NewDestination, NewSize, Colour);
+}
+
 void ClearScreen()
 {
     glClear(GL_COLOR_BUFFER_BIT);

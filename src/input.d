@@ -18,6 +18,8 @@
  */
 
 module input;
+import std.stdio;
+import std.conv;
 import derelict.sdl2.sdl;
 import arco;
 import cards;
@@ -141,9 +143,20 @@ void DoGame()
     int CardToPlay, netcard;
     bool bDiscarded, bAllowedToPlay;
 
+    SizeF HighlightRect, HighlightLocation;
+    SDL_Color HighlightColour = {255, 0, 0, 255};
+    int HighlightedCard = -1;
+
     while (!IsVictorious(0) && !IsVictorious(1))
     {
         DrawScene();
+        if (HighlightedCard != -1)
+        {
+            HighlightLocation = CardLocations[Turn][HighlightedCard];
+            HighlightRect.X = 94 / 800.0; // GEm: TODO: support for non-4:3
+            HighlightRect.Y = 128 / 600.0;
+            DrawHollowRectangle(HighlightLocation, HighlightRect, HighlightColour);
+        }
         UpdateScreen();
 
         while (SDL_PollEvent(&event))
@@ -175,17 +188,21 @@ void DoGame()
                 return;
             /*if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_b) //GE: Keeping as "down" since it's urgent ;)
                 Boss();*/ //GEm: TODO boss screen
-            /*if ( event.type == SDL_MOUSEMOTION && InRect(event.motion.x, event.motion.y,   8,342,  8+94,468) ) //GE: Support for highlighting cards, to be done: card tooltips.
+            if (event.type == SDL_MOUSEMOTION) //GE: Support for highlighting cards, to be done: card tooltips.
             {
-                Blit(SCREEN, BUFFER);
-                UpdateScreen();
-                bRefreshNeeded=1;
+                HighlightedCard = -1;
+                foreach (int i, SizeF CardLocation; CardLocations[Turn])
+                {
+                    HighlightRect.X = CardLocation.X + 94 / 800.0;
+                    HighlightRect.Y = CardLocation.Y + 128 / 600.0;
+                    if (FInRect(event.motion.x / cast(float)Config.ResolutionX, event.motion.y / cast(float)Config.ResolutionY,
+                        CardLocation.X, CardLocation.Y, HighlightRect.X, HighlightRect.Y))
+                    {
+                        HighlightedCard = i;
+                        break;
+                    }
+                }
             }
-            else if(bRefreshNeeded)
-            {
-                RedrawScreen(turn, Player);
-                bRefreshNeeded=0;
-            }*/ //GEm: TODO: Card highlighting
 
             if (event.type != SDL_MOUSEBUTTONUP || event.button.button > 3)
             {
