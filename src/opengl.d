@@ -62,9 +62,11 @@ void InitOpenGL()
 {
     glEnable(GL_TEXTURE_2D); //Enable 2D texturing support
     glEnable(GL_BLEND); //GE: Enable AlphaBlend
+    glEnable(GL_POINT_SMOOTH); // GEm: Enable drawing point particles
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //GE: Set AlphaBlend to not be wacky
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f); //Set the clear colour
+    glPointSize(3.0 * 1/GetDrawScale()); // GEm: The radius of particles. This is actual pixels, as internally pixel shaders are used.
 
     glViewport(0, 0, Config.ResolutionX, Config.ResolutionY); //Set the size of the window.
 
@@ -206,8 +208,7 @@ void DrawRectangle(SizeF DestinationCoords, SizeF DestinationWH, SDL_Color Colou
 {
     //We need a solid colour, thus texturing support is irrelevant. Also, this does not affect things we have already rendered.
     glDisable(GL_TEXTURE_2D);
-    glColor4f(cast(float)Colour.r / 255.0, cast(float)Colour.g / 255.0,
-        cast(float)Colour.b / 255.0, cast(float)Colour.unused / 255.0);
+    MakeGLColour(Colour);
     glRectf(DestinationCoords.X, DestinationCoords.Y,
         DestinationCoords.X + DestinationWH.X, DestinationCoords.Y + DestinationWH.Y);
     glEnable(GL_TEXTURE_2D);
@@ -219,12 +220,10 @@ void DrawGradient(SizeF DestinationCoords, SizeF DestinationWH, SDL_Color Colour
     //We need a solid colour, thus texturing support is irrelevant. Also, this does not affect things we have already rendered.
     glDisable(GL_TEXTURE_2D);
     glBegin(GL_POLYGON);
-        glColor4f(cast(float)ColourA.r / 255.0, cast(float)ColourA.g / 255.0,
-            cast(float)ColourA.b / 255.0, cast(float)ColourA.unused / 255.0);
+        MakeGLColour(ColourA);
         glVertex2f(DestinationCoords.X, DestinationCoords.Y);
         glVertex2f(DestinationCoords.X + DestinationWH.X, DestinationCoords.Y);
-        glColor4f(cast(float)ColourB.r / 255.0, cast(float)ColourB.g / 255.0,
-            cast(float)ColourB.b / 255.0, cast(float)ColourB.unused / 255.0);
+        MakeGLColour(ColourB);
         glVertex2f(DestinationCoords.X + DestinationWH.X, DestinationCoords.Y + DestinationWH.Y);
         glVertex2f(DestinationCoords.X, DestinationCoords.Y + DestinationWH.Y);
     glEnd();
@@ -261,7 +260,24 @@ void DrawHollowRectangle(SizeF DestinationCoords, SizeF DestinationWH, SDL_Color
     DrawRectangle(NewDestination, NewSize, Colour);
 }
 
+/// Draws a coloured point in the destination. Used for particles!
+void DrawPoint(SizeF DestinationCoords, SDL_Color Colour)
+{
+    glDisable(GL_TEXTURE_2D);
+    glBegin(GL_POINTS);
+        MakeGLColour(Colour);
+        glVertex2f(DestinationCoords.X, DestinationCoords.Y);
+    glEnd();
+    glEnable(GL_TEXTURE_2D);
+}
+
 void ClearScreen()
 {
     glClear(GL_COLOR_BUFFER_BIT);
+}
+
+void MakeGLColour(SDL_Color Colour)
+{
+    glColor4f(cast(float)Colour.r / 255.0, cast(float)Colour.g / 255.0,
+            cast(float)Colour.b / 255.0, cast(float)Colour.unused / 255.0);
 }

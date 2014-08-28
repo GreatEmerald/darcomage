@@ -329,6 +329,9 @@ extern (C) void PlayCardPostAnimation(int CardPlace)
 {
     DrawScene();
     UpdateScreen();
+    DrawParticles(CardPlace);
+    DrawScene();
+    UpdateScreen();
     SDL_Delay(500); // GEm: A *ta-daaa!* moment
 
     immutable int FloatToHnsecs = 1000000;
@@ -1260,6 +1263,59 @@ void DrawDialog(int Type, string Message)
                 val[vallen-1]=0;
                 return val;
         }*/
+}
+
+/**
+ * Draws particles for resource/facility up/down.
+ */
+void DrawParticles(int CardPlace)
+{
+    immutable int FloatToHnsecs = 1000000;
+
+    SizeF PlayedCardLocation;
+    PlayedCardLocation.X = 0.5 - 192 * GetDrawScale() / 2.0 / 800.0;
+    PlayedCardLocation.Y = 0.5 - 256 * GetDrawScale() / 2.0 / 600.0;
+    SizeF SourceLocation;
+    SourceLocation.X = 20 / 800.0;
+    SourceLocation.Y = 330 / 600.0;
+    SDL_Color Colour = {255, 0, 0, 255};
+    //SizeF Destination = GetCardOnTableLocation(cast(int)CardsOnTable.length);
+    SizeF CurrentLocation;
+    long AnimDuration = 5 * FloatToHnsecs;
+    long StartTime, CurrentTime;
+    StartTime = CurrentTime = Clock.currTime.stdTime;
+    float ElapsedPercentage;
+    SizeF BankLocation = GetCardOnTableLocation(0);
+
+    while (CurrentTime < StartTime + AnimDuration) //GEm: Move transient card to the table
+    {
+        ClearScreen();
+        DrawBackground();
+        DrawFolded(0, BankLocation, Config.CardTranslucency / 255.0);
+        DrawCardsOnTable(false);
+        DrawUI();
+        DrawStatus();
+        DrawPlayerCards(Turn, CardPlace);
+        if (bDiscardedInTransit)
+        {
+            DrawCardAlpha(Turn, CardPlace, PlayedCardLocation.X, PlayedCardLocation.Y,
+                Config.CardTranslucency / 255.0);
+            DrawDiscard(PlayedCardLocation);
+        }
+        else
+            DrawCard(Turn, CardPlace, PlayedCardLocation.X, PlayedCardLocation.Y);
+
+        // GEm: Actually draw particles
+        CurrentLocation.X = SourceLocation.X + 0.1*ElapsedPercentage;
+        CurrentLocation.Y = SourceLocation.Y + 0.1*ElapsedPercentage;
+        DrawPoint(CurrentLocation, Colour);
+
+        UpdateScreen();
+        SDL_Delay(10);
+
+        CurrentTime = Clock.currTime.stdTime;
+        ElapsedPercentage = (CurrentTime - StartTime) / cast(double)AnimDuration;
+    }
 }
 
 /// Pushes drawn content to the screen. Fast.

@@ -209,6 +209,7 @@ void DoGame()
                 SDL_Delay(0); //GEm: HACK
                 continue;
             }
+            HighlightedCard = -1;
             bDiscarded = (event.button.button == 2) || (event.button.button == 3);
             foreach (int i, SizeF CardLocation; CardLocations[Turn])
             {
