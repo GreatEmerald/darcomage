@@ -60,7 +60,7 @@ void Init()
 
     FrontendFunctions.PlayCardAnimation = &PlayCardAnimation;
     FrontendFunctions.PlayCardPostAnimation = &PlayCardPostAnimation;
-    FrontendFunctions.SoundPlay = &PlayResourceSound;
+    FrontendFunctions.EffectNotify = &EffectNotify;
 }
 
 /**

@@ -329,9 +329,6 @@ extern (C) void PlayCardPostAnimation(int CardPlace)
 {
     DrawScene();
     UpdateScreen();
-    DrawParticles(CardPlace);
-    DrawScene();
-    UpdateScreen();
     SDL_Delay(500); // GEm: A *ta-daaa!* moment
 
     immutable int FloatToHnsecs = 1000000;
@@ -1268,17 +1265,14 @@ void DrawDialog(int Type, string Message)
 /**
  * Draws particles for resource/facility up/down.
  */
-void DrawParticles(int CardPlace)
+void DrawParticles(int Who, int Type)
 {
     immutable int FloatToHnsecs = 1000000;
 
     SizeF PlayedCardLocation;
     PlayedCardLocation.X = 0.5 - 192 * GetDrawScale() / 2.0 / 800.0;
     PlayedCardLocation.Y = 0.5 - 256 * GetDrawScale() / 2.0 / 600.0;
-    SizeF SourceLocation;
-    SourceLocation.X = 20 / 800.0;
-    SourceLocation.Y = 330 / 600.0;
-    SDL_Color Colour = {255, 0, 0, 255};
+    SDL_Color Colour = {0, 0, 0, 255};
     //SizeF Destination = GetCardOnTableLocation(cast(int)CardsOnTable.length);
     SizeF CurrentLocation;
     long AnimDuration = 5 * FloatToHnsecs;
@@ -1286,6 +1280,89 @@ void DrawParticles(int CardPlace)
     StartTime = CurrentTime = Clock.currTime.stdTime;
     float ElapsedPercentage;
     SizeF BankLocation = GetCardOnTableLocation(0);
+    SizeF SourceLocation;
+
+    // GEm: Failsafe to not get out of bounds
+    if (CardInTransit < 0)
+        return;
+
+    // GEm: Set the particle origin points.
+    // GEm: Who*706 makes things work for the enemy
+    // GEm: 72 is the height of a panel
+    // GEM: TODO: Make things work in different aspect ratios
+    switch (Type)
+    {
+        case EffectType.DamageWall:
+        case EffectType.WallUp:
+            SourceLocation.X = (184 + Who*432) / 800.0;
+            SourceLocation.Y = 445 / 600.0;
+            break;
+        case EffectType.DamageTower:
+        case EffectType.TowerUp:
+            SourceLocation.X = (124 + Who*550) / 800.0;
+            SourceLocation.Y = 445 / 600.0;
+            break;
+        case EffectType.QuarryUp:
+        case EffectType.QuarryDown:
+            SourceLocation.X = (22 + Who*706) / 800.0;
+            SourceLocation.Y = 239 / 600.0;
+            break;
+        case EffectType.MagicUp:
+        case EffectType.MagicDown:
+            SourceLocation.X = (22 + Who*706) / 800.0;
+            SourceLocation.Y = (239 + 72) / 600.0;
+            break;
+        case EffectType.DungeonUp:
+        case EffectType.DungeonDown:
+            SourceLocation.X = (22 + Who*706) / 800.0;
+            SourceLocation.Y = (239 + 2*72) / 600.0;
+            break;
+        case EffectType.BricksUp:
+        case EffectType.BricksDown:
+            SourceLocation.X = (20 + Who*706) / 800.0;
+            SourceLocation.Y = (330 - 72) / 600.0;
+            break;
+        case EffectType.GemsUp:
+        case EffectType.GemsDown:
+            SourceLocation.X = (20 + Who*706) / 800.0;
+            SourceLocation.Y = 330 / 600.0;
+            break;
+        case EffectType.RecruitsUp:
+        case EffectType.RecruitsDown:
+            SourceLocation.X = (20 + Who*706) / 800.0;
+            SourceLocation.Y = (330 + 72) / 600.0;
+            break;
+        default:
+            writeln("Warning: graphics: DrawParticles: Unknown effect type "~to!string(Type));
+            return;
+    }
+    // GEm: Set the particle colours, red (bad) or green (good)
+    switch (Type)
+    {
+        case EffectType.QuarryUp:
+        case EffectType.MagicUp:
+        case EffectType.DungeonUp:
+        case EffectType.BricksUp:
+        case EffectType.GemsUp:
+        case EffectType.RecruitsUp:
+        case EffectType.TowerUp:
+        case EffectType.WallUp:
+            Colour.g = 255;
+            break;
+        case EffectType.QuarryDown:
+        case EffectType.MagicDown:
+        case EffectType.DungeonDown:
+        case EffectType.BricksDown:
+        case EffectType.GemsDown:
+        case EffectType.RecruitsDown:
+        case EffectType.DamageWall:
+        case EffectType.DamageTower:
+            Colour.r = 255;
+            break;
+        default:
+            writeln("Warning: graphics: DrawParticles: Unknown effect type "~to!string(Type));
+            return;
+    }
 
     while (CurrentTime < StartTime + AnimDuration) //GEm: Move transient card to the table
     {
@@ -1295,15 +1372,15 @@ void DrawParticles(int CardPlace)
         DrawCardsOnTable(false);
         DrawUI();
         DrawStatus();
-        DrawPlayerCards(Turn, CardPlace);
+        DrawPlayerCards(Turn, CardInTransit);
         if (bDiscardedInTransit)
         {
-            DrawCardAlpha(Turn, CardPlace, PlayedCardLocation.X, PlayedCardLocation.Y,
+            DrawCardAlpha(Turn, CardInTransit, PlayedCardLocation.X, PlayedCardLocation.Y,
                 Config.CardTranslucency / 255.0);
             DrawDiscard(PlayedCardLocation);
         }
         else
-            DrawCard(Turn, CardPlace, PlayedCardLocation.X, PlayedCardLocation.Y);
+            DrawCard(Turn, CardInTransit, PlayedCardLocation.X, PlayedCardLocation.Y);
 
         // GEm: Actually draw particles
         CurrentLocation.X = SourceLocation.X + 0.1*ElapsedPercentage;

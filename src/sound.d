@@ -99,36 +99,52 @@ void PlaySound(int Slot)
         writeln("Warning: sound: PlaySound: Couldn't play sound "~to!string(Slot)~": "~to!string(Mix_GetError()));
 }
 
-extern(C) void PlayResourceSound(int Type)
+extern(C) void EffectNotify(int Who, int Type)
 {
     switch (Type)
     {
-        case SoundTypes.Damage:
+        case EffectType.DamageWall:
+        case EffectType.DamageTower:
             PlaySound(SoundSlot.Damage);
+            DrawParticles(Who, Type);
             return;
-        case SoundTypes.ResB_Up:
+        case EffectType.QuarryUp:
+        case EffectType.MagicUp:
+        case EffectType.DungeonUp:
             PlaySound(SoundSlot.FacilityUp);
+            DrawParticles(Who, Type);
             return;
-        case SoundTypes.ResS_Up:
+        case EffectType.BricksUp:
+        case EffectType.GemsUp:
+        case EffectType.RecruitsUp:
             PlaySound(SoundSlot.ResourceUp);
+            DrawParticles(Who, Type);
             return;
-        case SoundTypes.Tower_Up:
+        case EffectType.TowerUp:
             PlaySound(SoundSlot.TowerUp);
+            DrawParticles(Who, Type);
             return;
-        case SoundTypes.Wall_Up:
+        case EffectType.WallUp:
             PlaySound(SoundSlot.WallUp);
+            DrawParticles(Who, Type);
             return;
-        case SoundTypes.ResB_Down:
+        case EffectType.QuarryDown:
+        case EffectType.MagicDown:
+        case EffectType.DungeonDown:
             PlaySound(SoundSlot.FacilityDown);
+            DrawParticles(Who, Type);
             return;
-        case SoundTypes.ResS_Down:
+        case EffectType.BricksDown:
+        case EffectType.GemsDown:
+        case EffectType.RecruitsDown:
             PlaySound(SoundSlot.ResourceDown);
+            DrawParticles(Who, Type);
             return;
-        case SoundTypes.Shuffle:
+        case EffectType.CardShuffle:
             PlaySound(SoundSlot.Shuffle);
             return;
         default:
-            writeln("Warning: sound: PlayResourceSound: Unknown sound type "~to!string(Type));
+            writeln("Warning: sound: EffectNotify: Unknown effect type "~to!string(Type));
             return;
     }
 }
