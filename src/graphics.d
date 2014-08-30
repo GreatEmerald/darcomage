@@ -70,6 +70,8 @@ CardHandle[] CardsOnTable;
 int CardInTransit = -1;
 bool bDiscardedInTransit;
 
+immutable byte ParticleNum = 3;
+
 void InitSDL()
 {
     DerelictSDL2.load(); // GEm: It autothrows things, neat!
@@ -1273,14 +1275,15 @@ void DrawParticles(int Who, int Type)
     PlayedCardLocation.X = 0.5 - 192 * GetDrawScale() / 2.0 / 800.0;
     PlayedCardLocation.Y = 0.5 - 256 * GetDrawScale() / 2.0 / 600.0;
     SDL_Color Colour = {0, 0, 0, 255};
-    //SizeF Destination = GetCardOnTableLocation(cast(int)CardsOnTable.length);
-    SizeF CurrentLocation;
     long AnimDuration = 5 * FloatToHnsecs;
     long StartTime, CurrentTime;
     StartTime = CurrentTime = Clock.currTime.stdTime;
     float ElapsedPercentage;
     SizeF BankLocation = GetCardOnTableLocation(0);
     SizeF SourceLocation;
+    SizeF[ParticleNum] CurrentLocation;
+    SizeF[ParticleNum] Velocities; // GEm: Change ParticleNum to something else to get more particles
+    float Gravity = -0.0005;
 
     // GEm: Failsafe to not get out of bounds
     if (CardInTransit < 0)
@@ -1336,6 +1339,9 @@ void DrawParticles(int Who, int Type)
             writeln("Warning: graphics: DrawParticles: Unknown effect type "~to!string(Type));
             return;
     }
+    foreach (byte i; 0 .. ParticleNum)
+        CurrentLocation[i] = SourceLocation;
+
     // GEm: Set the particle colours, red (bad) or green (good)
     switch (Type)
     {
@@ -1364,6 +1370,12 @@ void DrawParticles(int Who, int Type)
             return;
     }
 
+    foreach (byte i; 0 .. ParticleNum)
+    {
+        Velocities[i].X = uniform(-0.005, 0.005);
+        Velocities[i].Y = uniform(-0.01, 0.0);
+    }
+
     while (CurrentTime < StartTime + AnimDuration) //GEm: Move transient card to the table
     {
         ClearScreen();
@@ -1383,9 +1395,13 @@ void DrawParticles(int Who, int Type)
             DrawCard(Turn, CardInTransit, PlayedCardLocation.X, PlayedCardLocation.Y);
 
         // GEm: Actually draw particles
-        CurrentLocation.X = SourceLocation.X + 0.1*ElapsedPercentage;
-        CurrentLocation.Y = SourceLocation.Y + 0.1*ElapsedPercentage;
-        DrawPoint(CurrentLocation, Colour);
+        foreach (byte i; 0 .. ParticleNum)
+        {
+            DrawPoint(CurrentLocation[i], Colour);
+            Velocities[i].Y -= Gravity;
+            CurrentLocation[i].X += Velocities[i].X;
+            CurrentLocation[i].Y += Velocities[i].Y;
+        }
 
         UpdateScreen();
         SDL_Delay(10);
