@@ -423,8 +423,6 @@ void DrawScene()
     DrawBackground();
     SizeF BankLocation = GetCardOnTableLocation(0);
     DrawFolded(0, BankLocation, cast(float)Config.CardTranslucency/255.0);
-    DrawUI();
-    DrawStatus();
     if (CardInTransit > -1)
     {
         DrawCardsOnTable(false);
@@ -452,6 +450,8 @@ void DrawScene()
         DrawCardsOnTable();
         DrawPlayerCards();
     }
+    DrawUI();
+    DrawStatus();
 }
 
 /**
@@ -689,8 +689,8 @@ void DrawPlayerCards(int ExcludePlayer, int ExcludeCard)
             if (n == ExcludePlayer && i == ExcludeCard)
                 continue;
 
-            if (Player[n].AI
-                || (!Player[0].AI && !Player[1].AI && n != Turn))
+            if (Config.HiddenCards && (Player[n].AI
+                || (!Player[0].AI && !Player[1].AI && n != Turn)))
             {
                 DrawFolded(n, CardLocations[n][i]);
                 continue;
