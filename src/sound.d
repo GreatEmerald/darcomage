@@ -99,7 +99,7 @@ void PlaySound(int Slot)
         writeln("Warning: sound: PlaySound: Couldn't play sound "~to!string(Slot)~": "~to!string(Mix_GetError()));
 }
 
-extern(C) void EffectNotify(int Who, int Type)
+extern(C) void EffectNotify(int Who, int Type, int Power)
 {
     switch (Type)
     {
