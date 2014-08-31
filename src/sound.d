@@ -95,6 +95,9 @@ void LoadSound(string Filename, int Slot)
 
 void PlaySound(int Slot)
 {
+    if (!Config.SoundEnabled)
+        return;
+
     if (Mix_PlayChannel(-1, Sounds[Slot], 0) == -1)
         writeln("Warning: sound: PlaySound: Couldn't play sound "~to!string(Slot)~": "~to!string(Mix_GetError()));
 }

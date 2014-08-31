@@ -133,11 +133,15 @@ void QuitSDL()
 {
     int i;
 
-    //GEm: TODO: Free CardCache and all its textures
+    foreach (CachedCard[] Pool; CardCache)
+        foreach (CachedCard Card; Pool)
+            FreeTexture(Card.PictureTexture.Texture);
+
     foreach (GLuint GfxDatum; GfxData)
         FreeTexture(GfxDatum);
 
-    // GEm: TODO: Quit OpenGL
+    SDL_GL_DeleteContext(OGLContext);
+    SDL_DestroyWindow(Window);
     SDL_Quit();
 }
 

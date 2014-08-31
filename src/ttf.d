@@ -55,8 +55,6 @@ OpenGLTexture[2] NameCache; //GEm: FIXME - needs to be dynamic
  */
 void InitTTF()
 {
-    int a, b, c, d;
-
     DerelictSDL2ttf.load();
 
     if (TTF_Init() == -1)
@@ -78,6 +76,28 @@ void InitTTF()
 
 void QuitTTF()
 {
+    int i, n;
+    int NumPlayers = 2; //GEm: TODO implement variable amount of players!
+
+    for (i=0; i<NumPlayers; i++)
+        FreeTexture(NameCache[i].Texture);
+
+    for (n = 0; n <= NumberSlots.max; n++)
+        for (i = 0; i < 10; i++)
+            FreeTexture(NumberCache[n][i].Texture);
+
+    foreach (CachedCard[] Cards; CardCache)
+    {
+        foreach (CachedCard CurrentCard; Cards)
+        {
+            foreach (OpenGLTexture PT; CurrentCard.PriceTexture)
+                FreeTexture(PT.Texture);
+            foreach (OpenGLTexture DT; CurrentCard.DescriptionTextures)
+                FreeTexture(DT.Texture);
+            FreeTexture(CurrentCard.TitleTexture.Texture);
+        }
+    }
+
     foreach (TTF_Font* Font; Fonts)
         TTF_CloseFont(Font);
     foreach (TTF_Font* NumberFont; NumberFonts)
