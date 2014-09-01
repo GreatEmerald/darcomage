@@ -76,15 +76,28 @@ void InitTTF()
 
 void QuitTTF()
 {
+    ClearCardCache();
+
+    foreach (TTF_Font* Font; Fonts)
+        TTF_CloseFont(Font);
+    foreach (TTF_Font* NumberFont; NumberFonts)
+        TTF_CloseFont(NumberFont);
+    TTF_Quit();
+}
+
+void ClearCardCache()
+{
     int i, n;
     int NumPlayers = 2; //GEm: TODO implement variable amount of players!
 
     for (i=0; i<NumPlayers; i++)
         FreeTexture(NameCache[i].Texture);
+    NameCache = NameCache.init;
 
     for (n = 0; n <= NumberSlots.max; n++)
         for (i = 0; i < 10; i++)
             FreeTexture(NumberCache[n][i].Texture);
+    NumberCache = NumberCache.init;
 
     foreach (CachedCard[] Cards; CardCache)
     {
@@ -97,12 +110,7 @@ void QuitTTF()
             FreeTexture(CurrentCard.TitleTexture.Texture);
         }
     }
-
-    foreach (TTF_Font* Font; Fonts)
-        TTF_CloseFont(Font);
-    foreach (TTF_Font* NumberFont; NumberFonts)
-        TTF_CloseFont(NumberFont);
-    TTF_Quit();
+    CardCache = CardCache.init;
 }
 
 void PrecacheFonts()

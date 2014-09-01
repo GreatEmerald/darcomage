@@ -131,11 +131,7 @@ void InitSDL()
 
 void QuitSDL()
 {
-    int i;
-
-    foreach (CachedCard[] Pool; CardCache)
-        foreach (CachedCard Card; Pool)
-            FreeTexture(Card.PictureTexture.Texture);
+    FreePictures();
 
     foreach (GLuint GfxDatum; GfxData)
         FreeTexture(GfxDatum);
@@ -143,6 +139,13 @@ void QuitSDL()
     SDL_GL_DeleteContext(OGLContext);
     SDL_DestroyWindow(Window);
     SDL_Quit();
+}
+
+void FreePictures()
+{
+    foreach (CachedCard[] Pool; CardCache)
+        foreach (CachedCard Card; Pool)
+            FreeTexture(Card.PictureTexture.Texture);
 }
 
 void LoadSurface(string Filename, int Slot)

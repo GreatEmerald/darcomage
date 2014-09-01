@@ -23,8 +23,10 @@ import std.conv;
 import derelict.sdl2.sdl;
 import arco;
 import cards;
+import frontend;
 import graphics;
 import opengl;
+import ttf;
 import sound;
 
 enum MenuButton
@@ -38,6 +40,51 @@ enum MenuButton
 };
 
 SDL_Event event;
+
+/**
+ * Main menu chooser.
+ *
+ * Defines what happens on each button press.
+ *
+ * Bugs: Should allow the player to input his name. Alternatively, use Lua.
+ * Bugs: Should handle all menu buttons, not just the one.
+ */
+void MenuSelection()
+{
+    int MenuAction;
+
+    // GEm: Get the menu button pressed
+    MenuAction = Menu();
+    // GEm: Handle the button (still needs handling of all others than regular play!)
+    switch (MenuAction)
+    {
+        case MenuButton.Start:
+            initGame();
+            // GEm: Should read the names from somewhere (config or input)
+            // GEm: F...something should toggle fullscreen!
+            Player[Turn].Name = "Player";
+            Player[Turn].AI = false;
+            Player[GetEnemy()].Name = "AI";
+            Player[GetEnemy()].AI = true;
+            PrecachePlayerNames(); //GEm: We couldn't precache it earlier, since we didn't know the names!
+
+            DoGame();
+            break;
+        case MenuButton.Hotseat:
+            initGame();
+            // GEm: Should read the names from somewhere (config or input)
+            Player[Turn].Name = "Player 1";
+            Player[Turn].AI = false;
+            Player[GetEnemy()].Name = "Player 2";
+            Player[GetEnemy()].AI = false;
+            PrecachePlayerNames(); //GEm: We couldn't precache it earlier, since we didn't know the names!
+
+            DoGame();
+            break;
+
+        default: break;
+    }
+}
 
 int Menu()
 {
@@ -184,8 +231,12 @@ void DoGame()
         {
             while (!SDL_PollEvent(&event))
                 SDL_Delay(0); //GEm: HACK
-            if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE) //GEm: Return if Esc is pressed.
+            if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE)
+            {
+                //GEm: Back if Esc is pressed.
+                FrontendReset();
                 return;
+            }
             /*if (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_b) //GE: Keeping as "down" since it's urgent ;)
                 Boss();*/ //GEm: TODO boss screen
             if (event.type == SDL_MOUSEMOTION) //GE: Support for highlighting cards, to be done: card tooltips.
@@ -279,6 +330,7 @@ void DoGame()
     while (SDL_PollEvent(&event))
     {}
     WaitForInput();
+    FrontendReset();
 }
 
 void WaitForInput()

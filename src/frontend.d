@@ -63,6 +63,19 @@ void Init()
     FrontendFunctions.EffectNotify = &EffectNotify;
 }
 
+void FrontendReset()
+{
+    ClearCardCache();
+    FreePictures();
+    CardsOnTable = CardsOnTable.init;
+    CardInTransit = -1;
+    bDiscardedInTransit = false;
+    BackendReset();
+    InitCardLocations(2);
+    PrecacheCards();
+    MenuSelection();
+}
+
 /**
  * Game termination and memory cleanup.
  */
@@ -71,49 +84,4 @@ void Quit()
     QuitSound();
     QuitTTF();
     QuitSDL();
-}
-
-/**
- * Main menu chooser.
- *
- * Defines what happens on each button press.
- *
- * Bugs: Should allow the player to input his name. Alternatively, use Lua.
- * Bugs: Should handle all menu buttons, not just the one.
- */
-void MenuSelection()
-{
-    int MenuAction;
-
-    // GEm: Get the menu button pressed
-    MenuAction = Menu();
-    // GEm: Handle the button (still needs handling of all others than regular play!)
-    switch (MenuAction)
-    {
-        case MenuButton.Start:
-            initGame();
-            // GEm: Should read the names from somewhere (config or input)
-            // GEm: F...something should toggle fullscreen!
-            Player[Turn].Name = "Player";
-            Player[Turn].AI = false;
-            Player[GetEnemy()].Name = "AI";
-            Player[GetEnemy()].AI = true;
-            PrecachePlayerNames(); //GEm: We couldn't precache it earlier, since we didn't know the names!
-
-            DoGame();
-            break;
-        case MenuButton.Hotseat:
-            initGame();
-            // GEm: Should read the names from somewhere (config or input)
-            Player[Turn].Name = "Player 1";
-            Player[Turn].AI = false;
-            Player[GetEnemy()].Name = "Player 2";
-            Player[GetEnemy()].AI = false;
-            PrecachePlayerNames(); //GEm: We couldn't precache it earlier, since we didn't know the names!
-
-            DoGame();
-            break;
-
-        default: break;
-    }
 }
