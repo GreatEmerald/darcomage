@@ -109,39 +109,39 @@ extern(C) void EffectNotify(int Who, int Type, int Power)
         case EffectType.DamageWall:
         case EffectType.DamageTower:
             PlaySound(SoundSlot.Damage);
-            DrawParticles(Who, Type);
+            DrawParticles(Who, Type, Power);
             return;
         case EffectType.QuarryUp:
         case EffectType.MagicUp:
         case EffectType.DungeonUp:
             PlaySound(SoundSlot.FacilityUp);
-            DrawParticles(Who, Type);
+            DrawParticles(Who, Type, Power);
             return;
         case EffectType.BricksUp:
         case EffectType.GemsUp:
         case EffectType.RecruitsUp:
             PlaySound(SoundSlot.ResourceUp);
-            DrawParticles(Who, Type);
+            DrawParticles(Who, Type, Power);
             return;
         case EffectType.TowerUp:
             PlaySound(SoundSlot.TowerUp);
-            DrawParticles(Who, Type);
+            DrawParticles(Who, Type, Power);
             return;
         case EffectType.WallUp:
             PlaySound(SoundSlot.WallUp);
-            DrawParticles(Who, Type);
+            DrawParticles(Who, Type, Power);
             return;
         case EffectType.QuarryDown:
         case EffectType.MagicDown:
         case EffectType.DungeonDown:
             PlaySound(SoundSlot.FacilityDown);
-            DrawParticles(Who, Type);
+            DrawParticles(Who, Type, Power);
             return;
         case EffectType.BricksDown:
         case EffectType.GemsDown:
         case EffectType.RecruitsDown:
             PlaySound(SoundSlot.ResourceDown);
-            DrawParticles(Who, Type);
+            DrawParticles(Who, Type, Power);
             return;
         case EffectType.CardShuffle:
             PlaySound(SoundSlot.Shuffle);

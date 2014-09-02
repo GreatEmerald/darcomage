@@ -70,8 +70,6 @@ CardHandle[] CardsOnTable;
 int CardInTransit = -1;
 bool bDiscardedInTransit;
 
-immutable byte ParticleNum = 3;
-
 void InitSDL()
 {
     DerelictSDL2.load(); // GEm: It autothrows things, neat!
@@ -1274,7 +1272,7 @@ void DrawDialog(int Type, string Message)
 /**
  * Draws particles for resource/facility up/down.
  */
-void DrawParticles(int Who, int Type)
+void DrawParticles(int Who, int Type, int Power)
 {
     immutable int FloatToHnsecs = 1000000;
 
@@ -1288,9 +1286,13 @@ void DrawParticles(int Who, int Type)
     float ElapsedPercentage;
     SizeF BankLocation = GetCardOnTableLocation(0);
     SizeF SourceLocation;
-    SizeF[ParticleNum] CurrentLocation;
-    SizeF[ParticleNum] Velocities; // GEm: Change ParticleNum to something else to get more particles
+    SizeF[] CurrentLocation;
+    SizeF[] Velocities; // GEm: Change ParticleNum to something else to get more particles
     float Gravity = -0.0005;
+    float ParticleRadius;
+
+    CurrentLocation.length = Power;
+    Velocities.length = Power;
 
     // GEm: Failsafe to not get out of bounds
     if (CardInTransit < 0)
@@ -1306,48 +1308,56 @@ void DrawParticles(int Who, int Type)
         case EffectType.WallUp:
             SourceLocation.X = (184 + Who*432) / 800.0;
             SourceLocation.Y = 445 / 600.0;
+            ParticleRadius = 2.5;
             break;
         case EffectType.DamageTower:
         case EffectType.TowerUp:
             SourceLocation.X = (124 + Who*550) / 800.0;
             SourceLocation.Y = 445 / 600.0;
+            ParticleRadius = 2.5;
             break;
         case EffectType.QuarryUp:
         case EffectType.QuarryDown:
             SourceLocation.X = (22 + Who*706) / 800.0;
             SourceLocation.Y = 239 / 600.0;
+            ParticleRadius = 5.0;
             break;
         case EffectType.MagicUp:
         case EffectType.MagicDown:
             SourceLocation.X = (22 + Who*706) / 800.0;
             SourceLocation.Y = (239 + 72) / 600.0;
+            ParticleRadius = 5.0;
             break;
         case EffectType.DungeonUp:
         case EffectType.DungeonDown:
             SourceLocation.X = (22 + Who*706) / 800.0;
             SourceLocation.Y = (239 + 2*72) / 600.0;
+            ParticleRadius = 5.0;
             break;
         case EffectType.BricksUp:
         case EffectType.BricksDown:
             SourceLocation.X = (20 + Who*706) / 800.0;
             SourceLocation.Y = (330 - 72) / 600.0;
+            ParticleRadius = 2.0;
             break;
         case EffectType.GemsUp:
         case EffectType.GemsDown:
             SourceLocation.X = (20 + Who*706) / 800.0;
             SourceLocation.Y = 330 / 600.0;
+            ParticleRadius = 2.0;
             break;
         case EffectType.RecruitsUp:
         case EffectType.RecruitsDown:
             SourceLocation.X = (20 + Who*706) / 800.0;
             SourceLocation.Y = (330 + 72) / 600.0;
+            ParticleRadius = 2.0;
             break;
         default:
             writeln("Warning: graphics: DrawParticles: Unknown effect type "~to!string(Type));
             return;
     }
-    foreach (byte i; 0 .. ParticleNum)
-        CurrentLocation[i] = SourceLocation;
+    foreach (ref SizeF CL; CurrentLocation)
+        CL = SourceLocation;
 
     // GEm: Set the particle colours, red (bad) or green (good)
     switch (Type)
@@ -1377,10 +1387,10 @@ void DrawParticles(int Who, int Type)
             return;
     }
 
-    foreach (byte i; 0 .. ParticleNum)
+    foreach (ref SizeF V; Velocities)
     {
-        Velocities[i].X = uniform(-0.005, 0.005);
-        Velocities[i].Y = uniform(-0.01, 0.0);
+        V.X = uniform(-0.005, 0.005);
+        V.Y = uniform(-0.01, 0.0);
     }
 
     while (CurrentTime < StartTime + AnimDuration) //GEm: Move transient card to the table
@@ -1402,9 +1412,9 @@ void DrawParticles(int Who, int Type)
             DrawCard(Turn, CardInTransit, PlayedCardLocation.X, PlayedCardLocation.Y);
 
         // GEm: Actually draw particles
-        foreach (byte i; 0 .. ParticleNum)
+        foreach (byte i, SizeF CL; CurrentLocation)
         {
-            DrawPoint(CurrentLocation[i], Colour);
+            DrawPoint(CL, ParticleRadius, Colour);
             Velocities[i].Y -= Gravity;
             CurrentLocation[i].X += Velocities[i].X;
             CurrentLocation[i].Y += Velocities[i].Y;

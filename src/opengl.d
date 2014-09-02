@@ -66,7 +66,6 @@ void InitOpenGL()
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); //GE: Set AlphaBlend to not be wacky
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f); //Set the clear colour
-    glPointSize(3.0 * 1/GetDrawScale()); // GEm: The radius of particles. This is actual pixels, as internally pixel shaders are used.
 
     glViewport(0, 0, Config.ResolutionX, Config.ResolutionY); //Set the size of the window.
 
@@ -261,8 +260,9 @@ void DrawHollowRectangle(SizeF DestinationCoords, SizeF DestinationWH, SDL_Color
 }
 
 /// Draws a coloured point in the destination. Used for particles!
-void DrawPoint(SizeF DestinationCoords, SDL_Color Colour)
+void DrawPoint(SizeF DestinationCoords, float Radius, SDL_Color Colour)
 {
+    glPointSize(Radius * 1.0/GetDrawScale()); // GEm: The radius of particles. This is actual pixels, as internally pixel shaders are used.
     glDisable(GL_TEXTURE_2D);
     glBegin(GL_POINTS);
         MakeGLColour(Colour);
