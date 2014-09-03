@@ -207,8 +207,8 @@ void CacheDescription(int PoolNum, int CardNum, string Text)
 void PrecachePriceText()
 {
     Size ZeroSize;
-    GLuint ZeroTexture = TextToTexture(Fonts[FontSlots.Title], "0"); //GE: Small optimisation - 0 is very common, so use a common texture for that
-    TTF_SizeText(Fonts[FontSlots.Title], toStringz("0"), &(ZeroSize.X), &(ZeroSize.Y));
+    GLuint ZeroTexture = TextToTexture(Fonts[FontSlots.Description], "0"); //GE: Small optimisation - 0 is very common, so use a common texture for that
+    TTF_SizeText(Fonts[FontSlots.Description], toStringz("0"), &(ZeroSize.X), &(ZeroSize.Y));
 
     foreach (int PoolNum, CardInfo[] Cards; CardDB)
     {
@@ -229,8 +229,8 @@ void PrecacheSingleResource(int PoolNum, int CardNum, int ResourceType, int Reso
     if (ResourceCost > 0)
     {
         ReadableNumber = to!string(ResourceCost);
-        TTF_SizeText(Fonts[FontSlots.Title], toStringz(ReadableNumber), &(TexSize.X), &(TexSize.Y));
-        CardCache[PoolNum][CardNum].PriceTexture[ResourceType].Texture = TextToTexture(Fonts[FontSlots.Title], ReadableNumber);
+        TTF_SizeText(Fonts[FontSlots.Description], toStringz(ReadableNumber), &(TexSize.X), &(TexSize.Y));
+        CardCache[PoolNum][CardNum].PriceTexture[ResourceType].Texture = TextToTexture(Fonts[FontSlots.Description], ReadableNumber);
         CardCache[PoolNum][CardNum].PriceTexture[ResourceType].TextureSize = TexSize;
     }
     else

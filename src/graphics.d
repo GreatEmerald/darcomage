@@ -632,18 +632,25 @@ void DrawHandleCardAlpha(int Pool, int Card, float X, float Y, float Alpha)
     ItemPosition.h = CardDB[Pool][Card].Picture.Coordinates.h;
     BoundingBox.X = 88 / 800.0;
     BoundingBox.Y = 52 / 600.0;
-    float CustomDrawScale = fmax(BoundingBox.X / (ItemPosition.w / ResX),
-        BoundingBox.Y / (ItemPosition.h / ResY));
-    SizeF NewSize;
-    NewSize.X = (ItemPosition.w / ResX) * CustomDrawScale;
-    NewSize.Y = (ItemPosition.h / ResY) * CustomDrawScale;
-    SizeF DeltaSize;
-    DeltaSize.X = NewSize.X - BoundingBox.X;
-    DeltaSize.Y = NewSize.Y - BoundingBox.Y;
-    ItemPosition.x += DeltaSize.X * ResX / 2.0;
-    ItemPosition.y += DeltaSize.Y * ResY / 2.0;
-    ItemPosition.w -=  DeltaSize.X * ResX;
-    ItemPosition.h -=  DeltaSize.Y * ResY;
+    float XRatio = BoundingBox.X / (ItemPosition.w / ResX);
+    float YRatio = BoundingBox.Y / (ItemPosition.h / ResY);
+    float CustomDrawScale = fmax(XRatio, YRatio);
+    // GEm: Crop the image to fit our bounding box.
+    if (XRatio > YRatio)
+    {
+        /* GEm: The image is squarish, cut top and bottom
+                52/88 is te needed ratio, multiplied by height is what we need.
+                Removing that from the height gives what we need to trim.
+                Then divide by two to get the centre. Floor to hide the white. */
+        ItemPosition.y += floor((ItemPosition.h - 52.0 / 88.0 * ItemPosition.h) / 2.0);
+        ItemPosition.h -= floor((ItemPosition.h - 52.0 / 88.0 * ItemPosition.h) / 2.0);
+    }
+    else if (XRatio < YRatio) // GEm: If they're equal, no-op.
+    {
+        // GEm: Ultra widescreen, cut the sides.
+        ItemPosition.x += floor((ItemPosition.w - 88.0 / 52.0 * ItemPosition.h) / 2.0);
+        ItemPosition.h -= floor((ItemPosition.w - 88.0 / 52.0 * ItemPosition.h) / 2.0);
+    }
     ScreenPosition.X = X + 4 / 800.0;
     ScreenPosition.Y = Y + 19 / 600.0;
     DrawTextureAlpha(CardCache[Pool][Card].PictureTexture.Texture, CardCache[Pool][Card].PictureTexture.TextureSize,
