@@ -1287,7 +1287,7 @@ void DrawParticles(int Who, int Type, int Power)
     PlayedCardLocation.X = 0.5 - 192 * GetDrawScale() / 2.0 / 800.0;
     PlayedCardLocation.Y = 0.5 - 256 * GetDrawScale() / 2.0 / 600.0;
     SDL_Color Colour = {0, 0, 0, 255};
-    long AnimDuration = 5 * FloatToHnsecs;
+    long AnimDuration = 6 * FloatToHnsecs;
     long StartTime, CurrentTime;
     StartTime = CurrentTime = Clock.currTime.stdTime;
     float ElapsedPercentage;
@@ -1432,6 +1432,8 @@ void DrawParticles(int Who, int Type, int Power)
 
         CurrentTime = Clock.currTime.stdTime;
         ElapsedPercentage = (CurrentTime - StartTime) / cast(double)AnimDuration;
+        // GEm: Set alpha to follow a sinusoidal fadeout pattern
+        Colour.unused = cast(ubyte)(255*cos(PI_2*ElapsedPercentage));
     }
 }
 
