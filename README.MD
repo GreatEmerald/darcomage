@@ -58,6 +58,7 @@ Linux:
 * SDL 2.0.3 (Simple DirectMedia Layer; libSDL2-devel on openSUSE)
 * SDL 2.0 image (libSDL2_image-devel on openSUSE)
 * SDL 2.0 TTF (2.0.10 preferred; libSDL2_ttf-devel on openSUSE)
+* SDL 2.0 Mixer (libSDL2_mixer-devel on openSUSE)
 * OpenGL (Mesa-devel on openSUSE)
 * Lua 5.1 (lua51-devel on openSUSE)
 
