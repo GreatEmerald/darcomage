@@ -7,9 +7,8 @@ It handles all input, rendering and sound operations in the game.
 The frontend is written in the D programming language, using Derelict bindings
 for SDL 2.0.
 
-=======
 RUNNING
-=======
+============================================
 
 In order to play the game, the user has to either obtain the precompiled
 binaries or compile the code manually. For the latter, check the "Building"
@@ -37,9 +36,8 @@ the compilation of the program.
 
 After that, simply run the binary and enjoy!
 
-========
 BUILDING
-========
+============================================
 
 Quick list of what you need to build the frontend, depending on the OS:
 
@@ -125,9 +123,8 @@ Right now I only have the build scripts for 64-bit Linux and 32-bit Windows, but
 if you need to, you should be able to compile in different environments as well
 by changing the build scripts a little. Contact me if in doubt.
 
-=========
 STRUCTURE
-=========
+============================================
 
 The project has several directories. Here's the current directory tree:
 
