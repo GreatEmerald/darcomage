@@ -42,25 +42,24 @@ BUILDING
 Quick list of what you need to build the frontend, depending on the OS:
 
 Any:
-    libarcomage: https://github.com/GreatEmerald/libarcomage
+* libarcomage: https://github.com/GreatEmerald/libarcomage
 
 Windows:
-    DMD 2.065 (Digital Mars D compiler; might work with GDC or LDC as well, but
+* DMD 2.065 (Digital Mars D compiler; might work with GDC or LDC as well, but
       not tested): http://dlang.org/download.html
-    SDL 2.0 (Simple DirectMedia Layer, 2.0.12)
-    SDL 2.0 image
-    SDL 2.0 TTF
+* SDL 2.0 (Simple DirectMedia Layer, 2.0.12)
+* SDL 2.0 image
+* SDL 2.0 TTF
 
 Linux:
-    DMD 2.065 (Digital Mars D compiler; might work with GDC or LDC as well, but
+* DMD 2.065 (Digital Mars D compiler; might work with GDC or LDC as well, but
       not tested): http://dlang.org/download.html
-    GNU Make (make)
-    Embedded GNU C Library (libc6, glibc)
-    SDL 2.0.3 (Simple DirectMedia Layer; libSDL2-devel on openSUSE)
-    SDL 2.0 image (libSDL2_image-devel on openSUSE)
-    SDL 2.0 TTF (2.0.10 preferred; libSDL2_ttf-devel on openSUSE)
-    OpenGL (Mesa-devel on openSUSE)
-    Lua 5.1 (lua51-devel on openSUSE)
+* GNU Make (make)
+* SDL 2.0.3 (Simple DirectMedia Layer; libSDL2-devel on openSUSE)
+* SDL 2.0 image (libSDL2_image-devel on openSUSE)
+* SDL 2.0 TTF (2.0.10 preferred; libSDL2_ttf-devel on openSUSE)
+* OpenGL (Mesa-devel on openSUSE)
+* Lua 5.1 (lua51-devel on openSUSE)
 
 First clone the repository, then clone the libarcomage repository (ideally in
 the same directory). Then initialise the git submodules (in both darcomage and
@@ -128,15 +127,15 @@ STRUCTURE
 
 The project has several directories. Here's the current directory tree:
 
-  +-- bin
-  +-- data
-  |   +-- fonts
-  +-- include
-  +-- lib
-  +-- src
-  +-- utils
-  |-- COPYING.TXT
-  |-- README.TXT
+* +-- bin
+* +-- data
+* |   +-- fonts
+* +-- include
+* +-- lib
+* +-- src
+* +-- utils
+* |-- COPYING.TXT
+* |-- README.TXT
 
 The bin directory is where the binaries that are needed in order to run the game
 are put. I used to make precompiled builds, but that's not very clean, because
