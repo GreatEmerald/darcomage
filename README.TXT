@@ -1,5 +1,5 @@
 SDL2 & D Arcomage Frontend (darcomage) 1.alpha
-Revision 2014.08.13, GreatEmerald
+Revision 2014.09.27, GreatEmerald
 
 This is the SDL 2.0 + OpenGL graphical frontend for the Arcomage Clone project.
 It handles all input, rendering and sound operations in the game.
@@ -43,8 +43,10 @@ BUILDING
 
 Quick list of what you need to build the frontend, depending on the OS:
 
+Any:
+    libarcomage: https://github.com/GreatEmerald/libarcomage
+
 Windows:
-  Mandatory:
     DMD 2.065 (Digital Mars D compiler; might work with GDC or LDC as well, but
       not tested): http://dlang.org/download.html
     SDL 2.0 (Simple DirectMedia Layer, 2.0.12)
@@ -52,7 +54,6 @@ Windows:
     SDL 2.0 TTF
 
 Linux:
-  Mandatory:
     DMD 2.065 (Digital Mars D compiler; might work with GDC or LDC as well, but
       not tested): http://dlang.org/download.html
     GNU Make (make)
@@ -62,6 +63,30 @@ Linux:
     SDL 2.0 TTF (2.0.10 preferred; libSDL2_ttf-devel on openSUSE)
     OpenGL (Mesa-devel on openSUSE)
     Lua 5.1 (lua51-devel on openSUSE)
+
+First clone the repository, then clone the libarcomage repository (ideally in
+the same directory). Then initialise the git submodules (in both darcomage and
+libarcomage). Use the build scripts in utils/ to compile the project (you might
+need to adjust it for your particular OS).
+
+Example:
+
+```bash
+git clone https://github.com/GreatEmerald/libarcomage.git
+cd libarcomage
+git submodule update --init
+cd ..
+git clone https://github.com/GreatEmerald/darcomage.git
+cd darcomage
+git submodule update --init
+cd utils
+./compile.sh
+```
+
+The output is put into bin/. You need to also have a link to the "lua"
+directory from libarcomage in the bin/<architecture> directory and a link to the
+"data" directory in bin/ itself. This is already taken care of for Linux x64 at
+the moment.
 
 DMD is needed because the frontend is written in the D language (and I simply
 haven't tested it with other compilers; testing and patches welcome).
@@ -76,7 +101,7 @@ dynamically scaled cards.
 
 Lua is just needed for the backend, libarcomage, since this is currently
 statically linked. The requirement might be dropped later.
-    
+
 Why is D my primary language of choice? Well, when I started working on this
 project, I was primarily an UnrealScript coder (in case you're wondering,
 UnrealScript is the programming language of Unreal Engine games, which is a mix
