@@ -615,9 +615,7 @@ void DrawHandleCardAlpha(int Pool, int Card, float X, float Y, float Alpha)
             DrawTextureAlpha(CardCache[Pool][Card].PriceTexture[2].Texture, CardCache[Pool][Card].PriceTexture[2].TextureSize,
                 ItemPosition, ScreenPosition, 1.0, Alpha);
             break;
-        case 3:
-            writeln("Warning: graphics: DrawHandleCardAlpha: White cards not yet supported!");
-        default: //GEm: Black and red cards, and anything else strange goes here.
+        default: //GEm: Red, black and white, and anything else strange goes here.
             ItemPosition = AbsoluteTextureSize(CardCache[Pool][Card].PriceTexture[0].TextureSize);
             TextureSize.X = CardCache[Pool][Card].PriceTexture[0].TextureSize.X/ResX; TextureSize.Y = CardCache[Pool][Card].PriceTexture[0].TextureSize.Y/ResY;
             ScreenPosition = CentreOnX(ScreenPosition, TextureSize, BoundingBox);
