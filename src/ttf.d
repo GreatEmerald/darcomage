@@ -27,6 +27,7 @@ import derelict.sdl2.sdl;
 import derelict.opengl3.gl;
 import arco;
 import cards;
+import wrapper;
 import graphics;
 import opengl;
 
@@ -128,7 +129,7 @@ void PrecacheTitleText()
     {
         foreach (int CardNum, CardInfo CurrentCard; Cards)
         {
-            CardCache[PoolNum][CardNum].TitleTexture.Texture = TextToTexture(Fonts[FontSlots.Title], CurrentCard.Name);
+            CardCache[PoolNum][CardNum].TitleTexture.Texture = TextToTextureColour(Fonts[FontSlots.Title], CurrentCard.Name, GetFontColour(PoolNum, CardNum));
             TTF_SizeText(Fonts[FontSlots.Title], toStringz(CurrentCard.Name),
                 &(CardCache[PoolNum][CardNum].TitleTexture.TextureSize.X),
                 &(CardCache[PoolNum][CardNum].TitleTexture.TextureSize.Y));
@@ -142,6 +143,7 @@ void PrecacheDescriptionText()
     string[] SplitLines, SplitWords;
     int LineLength;
     string CurrentLine;
+    int ColourNum;
 
     CardSize.X = cast(int)(GetDrawScale()*2*92);
 
@@ -162,7 +164,7 @@ void PrecacheDescriptionText()
                         CurrentLine = Word;
                         // GEm: If this is both the first and last word in the line, automatically write.
                         if (WordNum == SplitWords.length - 1)
-                            CacheDescription(PoolNum, CardNum, CurrentLine);
+                            CacheDescription(PoolNum, CardNum, CurrentLine, GetFontColour(PoolNum, CardNum));
                         continue;
                     }
                     else
@@ -172,7 +174,7 @@ void PrecacheDescriptionText()
                     if (LineLength > CardSize.X)
                     {
                         // GEm: Write CurrentLine
-                        CacheDescription(PoolNum, CardNum, CurrentLine);
+                        CacheDescription(PoolNum, CardNum, CurrentLine, GetFontColour(PoolNum, CardNum));
                         CurrentLine = Word;
                     }
                     else
@@ -182,7 +184,7 @@ void PrecacheDescriptionText()
                     if (WordNum == SplitWords.length - 1)
                     {
                         // GEm: Write whatever is left.
-                        CacheDescription(PoolNum, CardNum, CurrentLine);
+                        CacheDescription(PoolNum, CardNum, CurrentLine, GetFontColour(PoolNum, CardNum));
                     }
                 }
             }
@@ -190,13 +192,13 @@ void PrecacheDescriptionText()
     }
 }
 
-void CacheDescription(int PoolNum, int CardNum, string Text)
+void CacheDescription(int PoolNum, int CardNum, string Text, SDL_Color Colour)
 {
     GLuint CurrentTexture;
     Size TextureSize;
     OpenGLTexture CachedTexture;
 
-    CurrentTexture = TextToTexture(Fonts[FontSlots.Description], Text);
+    CurrentTexture = TextToTextureColour(Fonts[FontSlots.Description], Text, Colour);
     TTF_SizeText(Fonts[FontSlots.Description], toStringz(Text), &(TextureSize.X), &(TextureSize.Y));
 
     CachedTexture.Texture = CurrentTexture;
@@ -206,14 +208,22 @@ void CacheDescription(int PoolNum, int CardNum, string Text)
 
 void PrecachePriceText()
 {
+    SDL_Color WhiteColour = {255, 255, 255};
     Size ZeroSize;
-    GLuint ZeroTexture = TextToTexture(Fonts[FontSlots.Description], "0"); //GE: Small optimisation - 0 is very common, so use a common texture for that
+    GLuint BlackZeroTexture = TextToTexture(Fonts[FontSlots.Description], "0"); //GE: Small optimisation - 0 is very common, so use a common texture for that
+    GLuint WhiteZeroTexture = TextToTextureColour(Fonts[FontSlots.Description], "0", WhiteColour);
+    GLuint ZeroTexture;
     TTF_SizeText(Fonts[FontSlots.Description], toStringz("0"), &(ZeroSize.X), &(ZeroSize.Y));
 
     foreach (int PoolNum, CardInfo[] Cards; CardDB)
     {
         foreach (int CardNum, CardInfo CurrentCard; Cards)
         {
+            if (GetColourType(PoolNum, CardNum) == 4)
+                ZeroTexture = WhiteZeroTexture;
+            else
+                ZeroTexture = BlackZeroTexture;
+
             PrecacheSingleResource(PoolNum, CardNum, 0, CurrentCard.BrickCost, ZeroTexture, ZeroSize);
             PrecacheSingleResource(PoolNum, CardNum, 1, CurrentCard.GemCost, ZeroTexture, ZeroSize);
             PrecacheSingleResource(PoolNum, CardNum, 2, CurrentCard.RecruitCost, ZeroTexture, ZeroSize);
@@ -230,7 +240,7 @@ void PrecacheSingleResource(int PoolNum, int CardNum, int ResourceType, int Reso
     {
         ReadableNumber = to!string(ResourceCost);
         TTF_SizeText(Fonts[FontSlots.Description], toStringz(ReadableNumber), &(TexSize.X), &(TexSize.Y));
-        CardCache[PoolNum][CardNum].PriceTexture[ResourceType].Texture = TextToTexture(Fonts[FontSlots.Description], ReadableNumber);
+        CardCache[PoolNum][CardNum].PriceTexture[ResourceType].Texture = TextToTextureColour(Fonts[FontSlots.Description], ReadableNumber, GetFontColour(PoolNum, CardNum));
         CardCache[PoolNum][CardNum].PriceTexture[ResourceType].TextureSize = TexSize;
     }
     else
@@ -345,4 +355,25 @@ int FindOptimalFontSize()
     }
     TTF_CloseFont(ProbeFont);
     return cast(int)(cast(float)InitialSize * FontScaler);
+}
+
+/// Returns an SDL_Color for a readable font on that colour.
+SDL_Color GetFontColour(int PoolNum, int CardNum)
+{
+    SDL_Color Colour;
+    int ColourNum = GetColourType(PoolNum, CardNum);
+
+    if (ColourNum == 4)
+    {
+        Colour.r = 255;
+        Colour.g = 255;
+        Colour.b = 255;
+    }
+    else
+    {
+        Colour.r = 0;
+        Colour.g = 0;
+        Colour.b = 0;
+    }
+    return Colour;
 }
