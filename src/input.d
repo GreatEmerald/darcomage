@@ -103,7 +103,7 @@ int Menu()
     {
         if (!SDL_PollEvent(&event)) //GE: Read the event loop. If it's empty, sleep instead of repeating the old events.
         {
-            SDL_Delay(0);
+            //SDL_Delay(0);
             continue;
         }
         switch (event.type)
@@ -174,7 +174,7 @@ int Menu()
             default:
                 break;
         }
-        SDL_Delay(0);//CPUWAIT); //GE: FIXME: This is not the same between platforms and causes major lag in Linux.
+        //SDL_Delay(0);//CPUWAIT); //GE: FIXME: This is not the same between platforms and causes major lag in Linux.
     }
     return value;
 }
@@ -230,7 +230,7 @@ void DoGame()
         else
         {
             while (!SDL_PollEvent(&event))
-                SDL_Delay(0); //GEm: HACK
+                continue;//SDL_Delay(0); //GEm: HACK
             if (event.type == SDL_KEYUP && event.key.keysym.sym == SDLK_ESCAPE)
             {
                 //GEm: Back if Esc is pressed.
@@ -257,7 +257,7 @@ void DoGame()
 
             if (event.type != SDL_MOUSEBUTTONUP || event.button.button > 3)
             {
-                SDL_Delay(0); //GEm: HACK
+                //SDL_Delay(0); //GEm: HACK
                 continue;
             }
             HighlightedCard = -1;
@@ -284,7 +284,7 @@ void DoGame()
             /*if (netplayer!=-1)
                 NetLocPlay(crd,discrd,netcard);*/ //GEm: TODO: Netplay
         }
-        SDL_Delay(10); // GEm: TODO: Configurable framerate
+        SDL_Delay(Config.FrameDelay);
     }
 
     //printf("DoGame(): Info: Game ended: Red gets %d, blue gets %d!\n", IsVictorious(0), IsVictorious(1));
@@ -339,7 +339,7 @@ void WaitForInput()
     do
     {
         SDL_PollEvent(&event);
-        SDL_Delay(10); // GEm: TODO: Configurable framerate
+        SDL_Delay(Config.FrameDelay);
     } while (!((event.type == SDL_KEYUP) || ((event.type == SDL_MOUSEBUTTONUP) && (event.button.button == SDL_BUTTON_LEFT))));
     SDL_PumpEvents();
 }

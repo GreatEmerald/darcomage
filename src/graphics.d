@@ -290,7 +290,7 @@ extern (C) void PlayCardAnimation(int CardPlace, char bDiscarded, char bSameTurn
             DrawCard(Turn, CardPlace, CurrentLocation.X, CurrentLocation.Y);
 
         UpdateScreen();
-        SDL_Delay(10);
+        SDL_Delay(Config.FrameDelay);
 
         CurrentTime = Clock.currTime.stdTime;
         ElapsedPercentage = (CurrentTime - StartTime) / cast(double)AnimDuration;
@@ -376,7 +376,7 @@ extern (C) void PlayCardPostAnimation(int CardPlace)
                 (Config.CardTranslucency / 255.0 - 1.0) * ElapsedPercentage + 1.0); //GEm: (Alpha-1)*x+1=f(x)
 
         UpdateScreen();
-        SDL_Delay(10);
+        SDL_Delay(Config.FrameDelay);
 
         CurrentTime = Clock.currTime.stdTime;
         ElapsedPercentage = (CurrentTime - StartTime) / cast(double)AnimDuration;
@@ -408,7 +408,7 @@ extern (C) void PlayCardPostAnimation(int CardPlace)
         DrawFolded(Turn, CurrentLocation);
 
         UpdateScreen();
-        SDL_Delay(10);
+        SDL_Delay(Config.FrameDelay);
 
         CurrentTime = Clock.currTime.stdTime;
         ElapsedPercentage = (CurrentTime - StartTime) / cast(double)AnimDuration;
@@ -1426,7 +1426,7 @@ void DrawParticles(int Who, int Type, int Power)
         }
 
         UpdateScreen();
-        SDL_Delay(10);
+        SDL_Delay(Config.FrameDelay);
 
         CurrentTime = Clock.currTime.stdTime;
         ElapsedPercentage = (CurrentTime - StartTime) / cast(double)AnimDuration;
