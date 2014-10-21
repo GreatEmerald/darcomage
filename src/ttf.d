@@ -22,6 +22,7 @@ import std.string;
 import std.conv;
 import std.stdio;
 import std.math;
+import std.algorithm;
 import derelict.sdl2.ttf;
 import derelict.sdl2.sdl;
 import derelict.opengl3.gl;
@@ -61,9 +62,9 @@ void InitTTF()
     if (TTF_Init() == -1)
         throw new Exception("Error: ttf: InitTTF: Failed to init: "~to!string(TTF_GetError()));
 
-    Fonts[FontSlots.Description] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), cast(int)(GetDrawScale()*2*10));
+    Fonts[FontSlots.Description] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), FindOptimalDescriptionSize());
     Fonts[FontSlots.Message] = TTF_OpenFont(GetCFilePath("fonts/FreeSansBold.ttf"), cast(int)(GetDrawScale()*2*20));
-    Fonts[FontSlots.Title] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), FindOptimalFontSize());
+    Fonts[FontSlots.Title] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), FindOptimalTitleSize());
     Fonts[FontSlots.Name] = TTF_OpenFont(GetCFilePath("fonts/FreeMono.ttf"), cast(int)(GetDrawScale()*2*11));//7
     if (!Fonts[FontSlots.Description])
         throw new Exception("Error: ttf: InitTTF: Failed to load fonts: "~to!string(TTF_GetError()));
@@ -334,7 +335,7 @@ GLuint TextToTexture(TTF_Font* Font, string Text)
 /**
  * Finds the best card name font size for the current resolution and deck.
  */
-int FindOptimalFontSize()
+int FindOptimalTitleSize()
 {
     Size CardSize;
     int LineLength;
@@ -351,6 +352,93 @@ int FindOptimalFontSize()
         {
             TTF_SizeText(ProbeFont, toStringz(CurrentCard.Name), &LineLength, null);
             FontScaler = fmin(FontScaler, cast(float)CardSize.X / cast(float)LineLength);
+        }
+    }
+    TTF_CloseFont(ProbeFont);
+    return cast(int)(cast(float)InitialSize * FontScaler);
+}
+
+/**
+ * Finds the best font side for the description, depending on the current deck.
+ * Unfortunately it's a bit of effort duplication with the precaching function.
+ */
+int FindOptimalDescriptionSize()
+{
+    Size CardSize;
+    string[] SplitLines, SplitWords;
+    int LineLength, LineHeight;
+    string CurrentLine;
+    TTF_Font* ProbeFont;
+    int InitialSize = cast(int)(GetDrawScale()*2*10);
+    float FontScaler = 1.0;
+    float LineScaler, HeightScaler;
+    int LineNum;
+    bool Retry;
+
+    CardSize.X = cast(int)(GetDrawScale()*2*92);
+    CardSize.Y = cast(int)(GetDrawScale()*106);
+    ProbeFont = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), InitialSize);
+
+    foreach (int PoolNum, CardInfo[] Cards; CardDB)
+    {
+        foreach (int CardNum, CardInfo CurrentCard; Cards)
+        {
+            do
+            {
+                Retry = false;
+                LineNum = 0;
+                LineScaler = 0.0;
+                SplitLines = split(CurrentCard.Description, "\n");
+                foreach (string Line; SplitLines)
+                {
+                    LineNum++;
+                    CurrentLine = "";
+                    SplitWords = split(Line);
+                    foreach (int WordNum, string Word; SplitWords)
+                    {
+                        if (WordNum == 0)
+                        {
+                            // GEm: We always assume the first word fits.
+                            CurrentLine = Word;
+                            continue;
+                        }
+                        else
+                            TTF_SizeText(ProbeFont, toStringz(CurrentLine~" "~Word), &LineLength, &LineHeight);
+
+                        // GEm: Will adding one more word make it not fit the card?
+                        if (LineLength * FontScaler > CardSize.X)
+                        {
+                            // GEm: New line
+                            LineNum++;
+                            // GEm: Cache just how much we'll need to scale down to fit this word in
+                            LineScaler = fmax(CardSize.X / (LineLength * FontScaler), LineScaler);
+                            CurrentLine = Word;
+                        }
+                        else
+                            CurrentLine ~= " "~Word;
+                    }
+                }
+                if (cast(float)LineHeight * FontScaler * cast(float)LineNum > CardSize.Y
+                    && LineHeight > 0)
+                {
+                    // GEm: What to set FontScaler to in order to fit all the needed lines
+                    HeightScaler = fmin(CardSize.Y / (cast(float)LineHeight * FontScaler * cast(float)LineNum), FontScaler);
+                    // GEm: If we have at least one word we can scale down
+                    if (LineScaler > 0.0)
+                    {
+                        writeln("Debug: ttf: FindOptimalDescriptionSize: Scaling down for a word, font scaler "~to!string(FontScaler)~" line scaler "~to!string(LineScaler));
+                        // GEm: If scaling down just one word is advantageous, do it
+                        if (LineScaler * FontScaler > HeightScaler)
+                            FontScaler = LineScaler * FontScaler;
+                        else
+                            FontScaler = HeightScaler;
+                        Retry = true;
+                    }
+                    else
+                        FontScaler = HeightScaler;
+                }
+                writeln("Debug: ttf: FindOptimalDescriptionSize: card "~CurrentCard.Name~" lines "~to!string(LineNum)~" scaler "~to!string(FontScaler));
+            } while (Retry);
         }
     }
     TTF_CloseFont(ProbeFont);
