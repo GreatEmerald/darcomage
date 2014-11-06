@@ -426,7 +426,7 @@ int FindOptimalDescriptionSize()
                     // GEm: If we have at least one word we can scale down
                     if (LineScaler > 0.0)
                     {
-                        writeln("Debug: ttf: FindOptimalDescriptionSize: Scaling down for a word, font scaler "~to!string(FontScaler)~" line scaler "~to!string(LineScaler));
+                        //writeln("Debug: ttf: FindOptimalDescriptionSize: Scaling down for a word, font scaler "~to!string(FontScaler)~" line scaler "~to!string(LineScaler));
                         // GEm: If scaling down just one word is advantageous, do it
                         if (LineScaler * FontScaler > HeightScaler)
                             FontScaler = LineScaler * FontScaler;
@@ -437,12 +437,12 @@ int FindOptimalDescriptionSize()
                     else
                         FontScaler = HeightScaler;
                 }
-                writeln("Debug: ttf: FindOptimalDescriptionSize: card "~CurrentCard.Name~" lines "~to!string(LineNum)~" scaler "~to!string(FontScaler));
+                //writeln("Debug: ttf: FindOptimalDescriptionSize: card "~CurrentCard.Name~" lines "~to!string(LineNum)~" scaler "~to!string(FontScaler));
             } while (Retry);
         }
     }
     TTF_CloseFont(ProbeFont);
-    return cast(int)(cast(float)InitialSize * FontScaler);
+    return max(cast(int)(cast(float)InitialSize * FontScaler), Config.FontMin);
 }
 
 /// Returns an SDL_Color for a readable font on that colour.
