@@ -40,7 +40,7 @@ int main()
         MenuSelection();
     }
     catch (Exception e)
-        writeln("Error: %s", e.msg);
+        writeln("FATAL: darcomage: ", e.msg);
     finally
         Quit();
 

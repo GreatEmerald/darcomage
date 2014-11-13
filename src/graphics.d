@@ -24,6 +24,7 @@ import std.random;
 import std.datetime;
 import std.conv;
 import std.string;
+import std.file;
 import derelict.sdl2.sdl;
 import derelict.sdl2.image;
 import derelict.sdl2.ttf;
@@ -72,6 +73,20 @@ bool bDiscardedInTransit;
 
 void InitSDL()
 {
+    // GEm: First find where our resources are in
+    // GEm: Assume good faith that people set it in the config file, but if not...
+    if (Config.DataDir == "" || !exists(Config.DataDir ~ "/Sprites.PNG"))
+    {
+        // GEm: It's not. Let's try and find it.
+        auto DataDir = FindResource("Sprites.PNG", "arcomage/darcomage-data",
+            ["data", "../data", "../../data", "../../../darcomage/data"]);
+        if (DataDir is null)
+            throw new Exception("InitSDL: Failed to find the data directory, check your Configuration.lua DataDir setting!");
+        else
+            Config.DataDir = DataDir;
+        writeln("Debug: darcomage: InitSDL: New DataDir is "~Config.DataDir);
+    }
+
     DerelictSDL2.load(); // GEm: It autothrows things, neat!
     DerelictSDL2Image.load();
 
@@ -1516,7 +1531,7 @@ auto GetDrawScale()
 
 immutable(char)* GetCFilePath(string Path)
 {
-    return toStringz(Config.DataDir~Path);
+    return toStringz(Config.DataDir ~ "/" ~ Path);
 }
 
 string GetDPicturePath(int PoolNum, int CardNum)
