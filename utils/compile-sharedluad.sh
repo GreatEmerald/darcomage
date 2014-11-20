@@ -16,7 +16,7 @@
 cd ../src
 dmd -m64 -ofdarcomage \
  -defaultlib=libphobos2.so -map -L-larcomage -L-llua \
- -I../include -I../../libarcomage/src -I../../libarcomage/include/LuaD \
+ -I../include -Iarcomage -I../../libarcomage/include/LuaD \
  -L-lGL -L-lSDL2 -L-lpthread -L-lSDL2_ttf -L-lSDL2_image -L-lSDL2_mixer -L-ldl \
  *.d \
  ../include/derelict/sdl2/*.d ../include/derelict/opengl3/*.d ../include/derelict/util/*.d
