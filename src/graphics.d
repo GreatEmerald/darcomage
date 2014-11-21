@@ -33,7 +33,7 @@ import arco;
 import cards;
 import wrapper;
 import opengl;
-import ttf;
+import font;
 import sound;
 
 SDL_Window* Window;

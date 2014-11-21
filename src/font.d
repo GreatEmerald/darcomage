@@ -17,7 +17,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-module ttf;
+module font;
 import std.string;
 import std.conv;
 import std.stdio;
@@ -429,10 +429,12 @@ int FindOptimalDescriptionSize()
                         //writeln("Debug: ttf: FindOptimalDescriptionSize: Scaling down for a word, font scaler "~to!string(FontScaler)~" line scaler "~to!string(LineScaler));
                         // GEm: If scaling down just one word is advantageous, do it
                         if (LineScaler * FontScaler > HeightScaler)
+                        {
                             FontScaler = LineScaler * FontScaler;
+                            Retry = true;
+                        }
                         else
                             FontScaler = HeightScaler;
-                        Retry = true;
                     }
                     else
                         FontScaler = HeightScaler;

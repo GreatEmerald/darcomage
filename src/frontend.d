@@ -22,7 +22,7 @@ import std.stdio;
 import arco;
 import cards;
 import graphics;
-import ttf;
+import font;
 import input;
 import sound;
 

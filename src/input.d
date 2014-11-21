@@ -26,7 +26,7 @@ import cards;
 import frontend;
 import graphics;
 import opengl;
-import ttf;
+import font;
 import sound;
 
 enum MenuButton
