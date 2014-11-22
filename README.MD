@@ -14,44 +14,36 @@ In order to play the game, the user has to either obtain the precompiled
 binaries or compile the code manually. For the latter, check the "Building"
 section of this document to generate binaries before you proceed to run them.
 
-Once you have the binaries, make sure that the 'lua' directory is in the same
-directory as the binary file (the 'lua' directory is part of libarcomage).
-Currently, the binary expects the lua directory to be in the same directory,
-but that will most likely change in the future to make it more flexible.
-
-Similarly, make sure that the 'data' directory is in the same directory as the
-binary file. Alternatively, you may indicate another place for the data
-directory by editing the lua/Configuration.lua file.
-
-Using symlinks (junctions on Windows) is also a possible option.
+Make sure to have the "lua" (from libarcomage) and "data" directories in places 
+where the game can find them. That can be: the directory the binary is, one 
+directory up, ../../../libarcomage/lua and .../../data, and then on OS-specific 
+paths: /usr/share/arcomage/libarcomage/lua, /usr/share/arcomage/darcomage/data, 
+~/.local/share/arcomage/libarcomage/lua, ~/.local/share/arcomage/darcomage/data, 
+and on Windows in %APPDATA%/arcomage/libarcomage/lua and 
+%APPDATA%/arcomage/darcomage/data. This should be already handled by the 
+distribtion, however (but it's good to keep in mind that you can override the 
+directories: ones in user directories have a higher priority).
 
 If you are using Linux, you will have to install libSDL2 2.0, libSDL2_image 2.0
 and libSDL2_ttf 2.0 to run the game (or their equivalents in your Linux
 distribution; see the building section for hints). You also need something that
 provides OpenGL, that's usually Mesa.
 
-Due to the fact that the DMD compiler does not support dynamic libraries, you
-don't need libarcomage to run the game, as it is included in the binary during
-the compilation of the program.
-
 After that, simply run the binary and enjoy!
 
-BUILDING
+BUILDING ON WINDOWS
 ============================================
 
-Quick list of what you need to build the frontend, depending on the OS:
+Building on Windows is quite a bit complicated, so the instructions for it have 
+been split out to the files BUILDING-WIN64.TXT and BUILDING-WIN32.TXT depending 
+on the architecture you want to build on. See those files for instructions.
 
-Any:
+BUILDING ON LINUX
+============================================
+
+Quick list of what you need to build the frontend:
+
 * libarcomage: https://github.com/GreatEmerald/libarcomage
-
-Windows:
-* DMD 2.065 (Digital Mars D compiler; might work with GDC or LDC as well, but
-      not tested): http://dlang.org/download.html
-* SDL 2.0 (Simple DirectMedia Layer, 2.0.12)
-* SDL 2.0 image
-* SDL 2.0 TTF
-
-Linux:
 * DMD 2.065 (Digital Mars D compiler; might work with GDC or LDC as well, but
       not tested): http://dlang.org/download.html
 * GNU Make (make)
@@ -61,11 +53,11 @@ Linux:
 * SDL 2.0 Mixer (libSDL2_mixer-devel on openSUSE)
 * OpenGL (Mesa-devel on openSUSE)
 * Lua 5.1 (lua51-devel on openSUSE)
+* CMake 2.8+ (cmake)
 
 First clone the repository, then clone the libarcomage repository (ideally in
 the same directory). Then initialise the git submodules (in both darcomage and
-libarcomage). Use the build scripts in utils/ to compile the project (you might
-need to adjust it for your particular OS).
+libarcomage). Use CMake in build/ to compile the projects.
 
 Example:
 
@@ -73,18 +65,22 @@ Example:
 git clone https://github.com/GreatEmerald/libarcomage.git
 cd libarcomage
 git submodule update --init
+cd build
+cmake ..
+make
+sudo make install
 cd ..
 git clone https://github.com/GreatEmerald/darcomage.git
 cd darcomage
 git submodule update --init
-cd utils
-./compile.sh
+cd build
+cmake ..
+make
+sudo make install
 ```
 
-The output is put into bin/. You need to also have a link to the "lua"
-directory from libarcomage in the bin/<architecture> directory and a link to the
-"data" directory in bin/ itself. This is already taken care of for Linux x64 at
-the moment.
+The output directories are controlled by CMake switches or by editing the 
+CMakeCache.txt file in the build/ directory.
 
 DMD is needed because the frontend is written in the D language (and I simply
 haven't tested it with other compilers; testing and patches welcome).
