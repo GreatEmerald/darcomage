@@ -1,0 +1,98 @@
+In order to build DArcomage for 32-bit Windows, you need to download these 
+prerequisites:
+
+* Git for Windows (http://msysgit.github.io/)
+* CMake (http://www.cmake.org/download/)
+* Lua 5.1 development files 
+(http://sourceforge.net/projects/luabinaries/files/5.1.5/Windows%20Libraries/Dynamic/
+or http://sourceforge.net/projects/luabinaries/files/ to look for a newer 
+version; you need to download a "dll" dynamic library that matches your target 
+system, in my case I used lua-5.1.5_Win32_dll10_lib.zip)
+* SDL 2 development files (the -VC version, here and in the other SDL parts: 
+http://www.libsdl.org/download-2.0.php)
+* SDL_image 2 development files (https://www.libsdl.org/projects/SDL_image/)
+* SDL_mixer 2 development files (http://www.libsdl.org/projects/SDL_mixer/)
+* SDL_ttf 2 development files (https://www.libsdl.org/projects/SDL_ttf/)
+* DMD 2 installer (http://dlang.org/download.html
+Note that IE7 or lower does not work, use IE8 or another browser)
+* COFFImpLib (http://ftp.digitalmars.com/coffimplib.zip)
+* Ninja (https://github.com/martine/ninja/releases)
+
+First install Git for Windows (use defaults). Start Git Bash, cd into a folder 
+you want to place the development files, then download darcomage and libarcomage 
+by running:
+
+git clone https://github.com/GreatEmerald/libarcomage.git
+cd libarcomage
+git submodule update --init
+cd ..
+git clone https://github.com/GreatEmerald/darcomage.git
+cd darcomage
+git submodule update --init
+
+Then install DMD. This will give the D compiler.
+
+Then put the .exe files from COFFImpLib and Ninja into C:\D\dmd2\windows\bin (or 
+any other place that your %PATH% points to), so that you could run them from the 
+Command Prompt without giving the full path.
+
+Then install CMake. It's the tool that generates calls to the compiler and 
+linker.
+
+Then extract all the SDL and Lua development files somewhere. The best way is to 
+make a folder somewhere, with three subfolders: "lib", "include" and "coff". 
+Then put all the files in the "include" folder in your downloads into the 
+"include" folder, and all the .lib files from the "x86" folders into "coff". 
+Open the Command Prompt, cd into that folder, and run coffimplib on each file in 
+the "coff" folder, like this:
+
+coffimplib coff\lua5.1.lib lib\lua5.1.lib
+
+(Repeat for every .lib file in "coff".) This will convert COFF .lib files into 
+OMF .lib files. The 32-bit version of DMD uses OMF format objects, hence the 
+libraries need to be OMF format too.
+
+Then cd a Command Prompt window into wherever you cloned darcomage, then cd to 
+build/. Now call CMake:
+
+"\Program Files (x86)\CMake\bin\cmake.exe" -G "Ninja" -DCMAKE_D_FLAGS="-m32" -DCMAKE_SYSTEM_PREFIX_PATH="C:\path\to\where\you\put\include\and\lib" ..
+
+Here the -G switch sets the output format to be Ninja (which we put into the 
+PATH before), the -DCMAKE_D_FLAGS sets the compilation to be explicitly 32-bit 
+(it might not be necessary since DMD defaults to it, but it might change in the 
+future, and there's no harm in explicitly setting 32-bit anyway), and the 
+-DCMAKE_SYSTEM_PREFIX_PATH points to where to start searching for "lib" and 
+"include" folders (make sure the path goes to the folder that contains those 
+two, not any of the two subfolders themselves).
+
+If you run into problems with paths (or don't want to put the files into "lib" 
+and "include" as said above for some reason), edit the CMakeCache.txt file 
+(in the build/ folder) and set the INCLUDE_DIRs and LIBRARIES to whatever the 
+path is supposed to be (the INCLUDE_DIRs must point to the "include" folder of 
+each development package, and the LIBRARIES or LIBRARY must point to the actual 
+x86 OMF .lib file itself). Then rerun the same CMake command as above, 
+and it should say that it found Lua (but not found SDL, so repeat the same thing 
+with it). For instance, you could replace:
+LUA_INCLUDE_DIR:PATH=LUA_INCLUDE_DIR-NOTFOUND
+With:
+LUA_INCLUDE_DIR:PATH=C:/Users/user/Documents/lua51/include
+Same with the libraries:
+LUA_LIBRARIES:STRING=C:/Users/user/Documents/lua51/lua51.lib
+Note that for SDL 2 itself, it sets a "SDL2_LIBRARY_TEMP" and also a 
+"SDL2MAIN_LIBRARY". The former is the path to the main SDL2.lib file, and the 
+latter is a path to the SDL2main.lib file.
+
+You could in theory use CMake GUI for it, instead of the cmake.exe itself, but 
+you'd need to define those -DCMAKE_ flags there before starting to build. 
+Probably not worth the effort.
+
+Once that's done, everything should compile fine, and you'll get a darcomage.exe 
+file in build/src/.
+
+To have it launch, you need to put all the 32-bit (x86) DLL files from all the 
+Lua and SDL development files you downloaded into the same folder as 
+darcomage.exe. Then have the lua and data files somewhere they can be found by 
+the game (as explained in the README.MD file).
+
+And that's it, building is complete. To also compile for 64-bit, see 
+BUILDING-WIN64.TXT.

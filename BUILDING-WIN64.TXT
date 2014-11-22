@@ -2,9 +2,9 @@ In order to build DArcomage for 64-bit Windows, you need to download these
 prerequisites:
 
 * Windows SDK (Any that works on your system should do, I used the Windows SDK 
-for Windows 7, but they are all largely backwards-compatible anyway; 
+for Windows 7 (7.1), but they are all largely backwards-compatible anyway; 
 http://msdn.microsoft.com/en-us/windows/desktop/ff851942.aspx)
-* Associated .NET Framework (for Windows 7 SDK it's 4.0, get it from Windows 
+* Associated .NET Framework (for Windows 7.1 SDK it's 4.0, get it from Windows 
 Update)
 * Git for Windows (http://msysgit.github.io/)
 * CMake (http://www.cmake.org/download/)
@@ -12,7 +12,7 @@ Update)
 (http://sourceforge.net/projects/luabinaries/files/5.1.5/Windows%20Libraries/Dynamic/
 or http://sourceforge.net/projects/luabinaries/files/ to look for a newer 
 version; you need to download the dynamic library that matches the Windows SDK 
-and for Win64, in case of the Windows 7 SDK it's lua-5.1.5_Win64_dll10_lib.zip)
+and for Win64, in case of the Windows 7.1 SDK it's lua-5.1.5_Win64_dll10_lib.zip)
 * SDL 2 development files (the -VC version, here and in the other SDL parts: 
 http://www.libsdl.org/download-2.0.php)
 * SDL_image 2 development files (https://www.libsdl.org/projects/SDL_image/)
@@ -51,9 +51,15 @@ Then extract all the development files somewhere. It's easier if the absolute
 paths to each of them is shorter.
 
 To build it, it's very important to set environment variables correctly. Open 
-the Command Prompt, and run SetEnv.cmd (which explains what switches to set; in 
-my case I went for SetEnv.cmd /Release /x64 /vista). Once done, the command 
-prompt will turn all green.
+the Command Prompt, and run:
+
+"\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /?
+
+That will explain what switches to set; in my case I went for:
+
+"\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.cmd" /Release /x64 /vista
+
+Once done, the command prompt will turn all green.
 
 With that command prompt (the green one) still open, cd into the folder where 
 you cloned darcomage, then cd to build/. Now call CMake:
@@ -68,21 +74,38 @@ harm in explicitly setting 64-bit anyway).
 
 This command should then fail, citing that Lua wasn't found. That's true, given 
 that there's no default folder for installing libraries and includes on Windows. 
-In that case, you have three options. First is to edit the CMakeCache.txt file 
-(in the build/ folder) and set the path and library to whatever the path you 
-extracted those is (the path must point to the "include" folder, and the library 
-must point to the x64 .lib file). Then rerun the same CMake command as above, 
-and it should say that it found Lua (but not found SDL, so repeat the same thing 
-with it). This is how I built it. The second option is to put all the 
-development files in one folder tree with Linux-like names, and then set the 
-CMake prefix to it, so the libraries and includes get found automatically. The 
-third option is to use CCMake to point to those files. The CMake GUI doesn't 
-work, as you need the environment set up, and it only applies to the particular 
-Command Prompt window.
+In that case, you have three options.
 
-Note that for SDL 2 itself, it sets a "temporary path" and also a "SDL2main" 
-library. The former is the same include path as for the others, and the latter 
-is a path to the SDL2main.lib file.
+The first option is to put all the development files in one folder tree with 
+Linux-like names, and then set the CMake prefix to it, so the libraries and 
+includes get found automatically. To do that, create a folder with two 
+subfolders, "lib" and "include". Put the contents of each development packages' 
+you downloaded "include" folder into your own "include" folder you made, and all 
+the .lib files in "lib/x64" into "lib". Then point CMake to this new folder with 
+the two subfolders by adding 
+-DCMAKE_SYSTEM_PREFIX_PATH="C:\path\to\this\new\folder" to the above command 
+line. This way CMake should find all the libraries automatically.
+
+The second option is to edit the CMakeCache.txt file (in the build/ folder) and 
+set INCLUDE_DIRs and LIBRARIES to whatever the path you extracted those is (the 
+INCLUDE_DIR must point to the "include" folder, and the LIBRARIES must point to 
+the x64 .lib file). Rerun the above command line and keep changing 
+CMakeCache.txt until there are no more finding errors.
+For instance, I replaced:
+LUA_INCLUDE_DIR:PATH=LUA_INCLUDE_DIR-NOTFOUND
+With:
+LUA_INCLUDE_DIR:PATH=C:/Users/user/Documents/lua51/include
+And set the libraries accordingly too:
+LUA_LIBRARIES:STRING=C:/Users/user/Documents/lua51/lua51.lib
+
+Note that for SDL 2 itself, it sets a "SDL2_LIBRARY_TEMP" and also a 
+"SDL2MAIN_LIBRARY". The former is the path to the main SDL2.lib file, and the 
+latter is a path to the SDL2main.lib file.
+
+The third option could in theory be to start the CMake GUI from the command prompt 
+(you can't start it from the Start menu since you need the environment set up, 
+and it only applies to the particular Command Prompt window), but I haven't 
+tested if this works.
 
 Once that's done, everything should compile fine, and you'll get a darcomage.exe 
 file in build/src/.
