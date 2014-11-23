@@ -23,10 +23,29 @@ INCLUDE (GNUInstallDirs)
 PROJECT (darcomage D)
 SET (PROJECT_VERSION "1.alpha.14.06")
 
-SET (DYNAMIC_LINKING "YES" CACHE BOOL "Whether to use dynamic (default) or static linking. Dynamic is recommended, but not possible on Win32.")
+# GEm: Guess whether static or dynamic linking is desired
 IF (WIN32)
-  SET (DYNAMIC_LINKING "NO")
+  SET (dynlink "NO")
+ELSE (WIN32)
+  SET (dynlink "YES")
 ENDIF (WIN32)
+SET (DYNAMIC_LINKING ${dynlink} CACHE BOOL "Whether to use dynamic (default) or static linking. Dynamic is recommended, but not possible on Win32.")
+
+# GEm: Detect architecture
+if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+  message(STATUS "Target is 64 bits")
+  set(bits "64")
+else("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+  message(STATUS "Target is 32 bits")
+  set(bits "32")
+endif("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+SET (ARCH ${bits} CACHE STRING "Bitness of the architecture you're building for. It's autodetected, but change this value (32 or 64) for cross-compilation.")
+
+IF (ARCH EQUAL "64")
+  SET (CMAKE_D_FLAGS "${CMAKE_D_FLAGS} -m64")
+ELSE (ARCH EQUAL "64")
+  SET (CMAKE_D_FLAGS "${CMAKE_D_FLAGS} -m32")
+ENDIF (ARCH EQUAL "64")
 
 # GEm: Static compilation below
 
@@ -141,11 +160,13 @@ include_directories(${CMAKE_SOURCE_DIR}/${DERELICT_PATH}/${DERELICT_OPENGL_SUBDI
 # GEm: Continue processing
 ADD_SUBDIRECTORY (src)
 
-# GEm: Install config and decks
-INSTALL (DIRECTORY lua/ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/arcomage/libarcomage)
+# GEm: Install resources
+INSTALL (DIRECTORY data/ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/arcomage/darcomage-data)
+# GEm: Install config
+INSTALL (DIRECTORY ../libarcomage/lua/ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/arcomage/libarcomage)
 
 # GEm: CPack specifics below. This can be openSUSE-specific, so other distros should use their own packaging.
-SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY "Backend for free Arcomage-like games")
+SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY "SDL2 frontend for libarcomage")
 SET (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING.TXT")
 SET (CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.MD")
 #SET (CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DESCRIPTION.TXT")

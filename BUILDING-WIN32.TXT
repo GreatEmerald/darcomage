@@ -42,9 +42,9 @@ linker.
 Then extract all the SDL and Lua development files somewhere. The best way is to 
 make a folder somewhere, with three subfolders: "lib", "include" and "coff". 
 Then put all the files in the "include" folder in your downloads into the 
-"include" folder, and all the .lib files from the "x86" folders into "coff". 
-Open the Command Prompt, cd into that folder, and run coffimplib on each file in 
-the "coff" folder, like this:
+"include" folder, all the .lib files from the "x86" folders into "coff", and all 
+the .dll files into "lib". Then open the Command Prompt, cd into that folder, 
+and run coffimplib on each file in the "coff" folder, like this:
 
 coffimplib coff\lua5.1.lib lib\lua5.1.lib
 
@@ -55,10 +55,10 @@ libraries need to be OMF format too.
 Then cd a Command Prompt window into wherever you cloned darcomage, then cd to 
 build/. Now call CMake:
 
-"\Program Files (x86)\CMake\bin\cmake.exe" -G "Ninja" -DCMAKE_D_FLAGS="-m32" -DCMAKE_SYSTEM_PREFIX_PATH="C:\path\to\where\you\put\include\and\lib" ..
+"\Program Files (x86)\CMake\bin\cmake.exe" -G "Ninja" -DARCH="32" -DCMAKE_SYSTEM_PREFIX_PATH="C:\path\to\where\you\put\include\and\lib" ..
 
 Here the -G switch sets the output format to be Ninja (which we put into the 
-PATH before), the -DCMAKE_D_FLAGS sets the compilation to be explicitly 32-bit 
+PATH before), the -DARCH sets the compilation to be explicitly 32-bit 
 (it might not be necessary since DMD defaults to it, but it might change in the 
 future, and there's no harm in explicitly setting 32-bit anyway), and the 
 -DCMAKE_SYSTEM_PREFIX_PATH points to where to start searching for "lib" and 
@@ -86,13 +86,17 @@ You could in theory use CMake GUI for it, instead of the cmake.exe itself, but
 you'd need to define those -DCMAKE_ flags there before starting to build. 
 Probably not worth the effort.
 
-Once that's done, everything should compile fine, and you'll get a darcomage.exe 
-file in build/src/.
+Once CMake finishes, compile with:
 
-To have it launch, you need to put all the 32-bit (x86) DLL files from all the 
-Lua and SDL development files you downloaded into the same folder as 
-darcomage.exe. Then have the lua and data files somewhere they can be found by 
-the game (as explained in the README.MD file).
+ninja
+
+Once that's done, everything should compile fine, and you'll get a darcomage.exe 
+file in build/src/. You can optionally install it system-wide:
+
+ninja install
+
+Note that users can change the configuration without affecting each other by 
+copying the folder darcomage\share\arcomage and putting it into %APPDATA%.
 
 And that's it, building is complete. To also compile for 64-bit, see 
 BUILDING-WIN64.TXT.

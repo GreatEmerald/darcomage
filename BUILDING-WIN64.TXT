@@ -64,13 +64,13 @@ Once done, the command prompt will turn all green.
 With that command prompt (the green one) still open, cd into the folder where 
 you cloned darcomage, then cd to build/. Now call CMake:
 
-"\Program Files (x86)\CMake\bin\cmake.exe" -G "NMake Makefiles" -DCMAKE_D_FLAGS="-m64" ..
+"\Program Files (x86)\CMake\bin\cmake.exe" -G "NMake Makefiles" -DARCH="64" ..
 
 Here the -G switch sets the output format to be NMake (which we got with the 
-Windows SDK and set up with SetEnv.cmd), and the -DCMAKE_D_FLAGS sets the 
-compilation to be explicitly 64-bit (because DMD defaults to 32-bit even on 
-64-bit OSs at the moment; it might not do that in the future, but there's no 
-harm in explicitly setting 64-bit anyway).
+Windows SDK and set up with SetEnv.cmd), and the -DARCH sets the compilation 
+to be explicitly 64-bit (because DMD defaults to 32-bit even on 64-bit OSs at 
+the moment; it might not do that in the future, but there's no harm in 
+explicitly setting 64-bit anyway).
 
 This command should then fail, citing that Lua wasn't found. That's true, given 
 that there's no default folder for installing libraries and includes on Windows. 
@@ -81,8 +81,8 @@ Linux-like names, and then set the CMake prefix to it, so the libraries and
 includes get found automatically. To do that, create a folder with two 
 subfolders, "lib" and "include". Put the contents of each development packages' 
 you downloaded "include" folder into your own "include" folder you made, and all 
-the .lib files in "lib/x64" into "lib". Then point CMake to this new folder with 
-the two subfolders by adding 
+the .lib and .dll files from "lib/x64" into "lib". Then point CMake to this new 
+folder with the two subfolders by adding 
 -DCMAKE_SYSTEM_PREFIX_PATH="C:\path\to\this\new\folder" to the above command 
 line. This way CMake should find all the libraries automatically.
 
@@ -107,13 +107,17 @@ The third option could in theory be to start the CMake GUI from the command prom
 and it only applies to the particular Command Prompt window), but I haven't 
 tested if this works.
 
-Once that's done, everything should compile fine, and you'll get a darcomage.exe 
-file in build/src/.
+Once CMake finishes, compile the project with:
 
-To have it launch, you need to put all the DLL files from all the Lua and SDL 
-development files you downloaded into the same folder as darcomage.exe. Then 
-have the lua and data files somewhere they can be found by the game (as 
-explained in the README.MD file).
+nmake
+
+Once that's done, everything should compile fine, and you'll get a darcomage.exe 
+file in build/src/. You can optionally install it system-wide with:
+
+nmake install
+
+Note that users can change the configuration without affecting each other by 
+copying the folder darcomage\share\arcomage and putting it into %APPDATA%.
 
 And that's it, building is complete. To also compile for 32-bit, see 
 BUILDING-WIN32.TXT.

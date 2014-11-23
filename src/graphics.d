@@ -84,7 +84,7 @@ void InitSDL()
             throw new Exception("InitSDL: Failed to find the data directory, check your Configuration.lua DataDir setting!");
         else
             Config.DataDir = DataDir;
-        writeln("Debug: darcomage: InitSDL: New DataDir is "~Config.DataDir);
+        //writeln("Debug: darcomage: InitSDL: New DataDir is "~Config.DataDir);
     }
 
     DerelictSDL2.load(); // GEm: It autothrows things, neat!
@@ -239,7 +239,7 @@ void PrecachePictures()
             {
                 Surface = IMG_Load(toStringz(CurrentPath));
                 if (!Surface)
-                    throw new Exception("graphics: PrecachePicture: Failed to load "~CurrentPath~": "~to!string(SDL_GetError()));
+                    throw new Exception("graphics: PrecachePictures: Failed to load "~CurrentPath~": "~to!string(SDL_GetError()));
                 CardCache[PoolNum][CardNum].PictureTexture.Texture = SurfaceToTexture(Surface);
                 CardCache[PoolNum][CardNum].PictureTexture.TextureSize.X = (*Surface).w;
                 CardCache[PoolNum][CardNum].PictureTexture.TextureSize.Y = (*Surface).h;
@@ -1536,5 +1536,5 @@ immutable(char)* GetCFilePath(string Path)
 
 string GetDPicturePath(int PoolNum, int CardNum)
 {
-    return "lua/"~PoolNames[PoolNum]~"/"~CardDB[PoolNum][CardNum].Picture.File;
+    return ConfigPath ~ "/" ~ PoolNames[PoolNum] ~ "/" ~ CardDB[PoolNum][CardNum].Picture.File;
 }
