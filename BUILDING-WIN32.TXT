@@ -95,6 +95,10 @@ file in build/src/. You can optionally install it system-wide:
 
 ninja install
 
+Or make an installer (you need to install NSIS, version 3 works):
+
+"\Program Files (x86)\CMake\bin\cpack.exe" -G NSIS 
+
 Note that users can change the configuration without affecting each other by 
 copying the folder darcomage\share\arcomage and putting it into %APPDATA%.
 

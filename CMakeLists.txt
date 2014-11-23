@@ -21,7 +21,11 @@ INCLUDE (GNUInstallDirs)
 ##############
 
 PROJECT (darcomage D)
-SET (PROJECT_VERSION "1.alpha.14.06")
+SET (PROJECT_VERSION "1.alpha.14.11")
+SET (PROJECT_VERSION_MAJOR "1")
+SET (PROJECT_VERSION_MINOR "alpha")
+SET (PROJECT_VERSION_PATCH "14")
+SET (PROJECT_VERSION_TWEAK "11")
 
 # GEm: Guess whether static or dynamic linking is desired
 IF (WIN32)
@@ -165,6 +169,9 @@ INSTALL (DIRECTORY data/ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/arcomage/darco
 # GEm: Install config
 INSTALL (DIRECTORY ../libarcomage/lua/ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/arcomage/libarcomage)
 
+SET (CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+SET (CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_PATCH})
+SET (CPACK_PACKAGE_VERSION_PATCH ${PROJECT_VERSION_TWEAK})
 # GEm: CPack specifics below. This can be openSUSE-specific, so other distros should use their own packaging.
 SET (CPACK_PACKAGE_DESCRIPTION_SUMMARY "SDL2 frontend for libarcomage")
 SET (CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING.TXT")
@@ -173,4 +180,11 @@ SET (CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.MD")
 # GEm: RPM specifics, this is definitely openSUSE-specific
 SET (CPACK_RPM_PACKAGE_LICENSE "GPL-3.0+")
 SET (CPACK_RPM_PACKAGE_GROUP "Amusements/Games")
+# GEm: NSIS specific
+SET (CPACK_NSIS_PACKAGE_NAME "DArcomage")
+SET (CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/data/arcomage.ico")
+SET (CPACK_NSIS_MUI_UNIICON ${CPACK_NSIS_MUI_ICON})
+SET (CPACK_NSIS_CREATE_ICONS_EXTRA "CreateShortcut '\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\DArcomage.lnk' '\$INSTDIR\\\\bin\\\\darcomage.exe' '' '\$INSTDIR\\\\share\\\\arcomage\\\\darcomage-data\\\\arcomage.ico'")
+SET (CPACK_NSIS_DELETE_ICONS_EXTRA "Delete '\$SMPROGRAMS\\\\\$STARTMENU_FOLDER\\\\DArcomage.lnk'")
+SET (CPACK_NSIS_URL_INFO_ABOUT "http://greatemerald.eu")
 INCLUDE (CPack)
