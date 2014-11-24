@@ -116,6 +116,11 @@ file in build/src/. You can optionally install it system-wide with:
 
 nmake install
 
+Or make an installer (you need to install 64-bit NSIS from
+https://bitbucket.org/dgolub/nsis64 first):
+
+"\Program Files (x86)\CMake\bin\cpack.exe" -G NSIS64
+
 Note that users can change the configuration without affecting each other by 
 copying the folder darcomage\share\arcomage and putting it into %APPDATA%.
 
