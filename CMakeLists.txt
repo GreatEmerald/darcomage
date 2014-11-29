@@ -21,11 +21,11 @@ INCLUDE (GNUInstallDirs)
 ##############
 
 PROJECT (darcomage D)
-SET (PROJECT_VERSION "1.alpha.14.12")
+SET (PROJECT_VERSION "1.alpha.14.13")
 SET (PROJECT_VERSION_MAJOR "1")
 SET (PROJECT_VERSION_MINOR "alpha")
 SET (PROJECT_VERSION_PATCH "14")
-SET (PROJECT_VERSION_TWEAK "12")
+SET (PROJECT_VERSION_TWEAK "13")
 
 # GEm: Guess whether static or dynamic linking is desired
 IF (WIN32)
@@ -39,9 +39,11 @@ SET (DYNAMIC_LINKING ${dynlink} CACHE BOOL "Whether to use dynamic (default) or 
 if("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
   message(STATUS "Target is 64 bits")
   set(bits "64")
-else("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+elseif("${CMAKE_SIZEOF_VOID_P}" EQUAL "4")
   message(STATUS "Target is 32 bits")
   set(bits "32")
+else ("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
+  message(STATUS "Target has unknown bitness: " "${CMAKE_SIZEOF_VOID_P}")
 endif("${CMAKE_SIZEOF_VOID_P}" EQUAL "8")
 SET (ARCH ${bits} CACHE STRING "Bitness of the architecture you're building for. It's autodetected, but change this value (32 or 64) for cross-compilation.")
 
@@ -51,7 +53,6 @@ ELSE (ARCH EQUAL "64")
   SET (CMAKE_D_FLAGS "${CMAKE_D_FLAGS} -m32")
 ENDIF (ARCH EQUAL "64")
 
-# GEm: Static compilation below
 
 # GEm: Add LuaD
 # GEm: These are the files we need (from LuaD Makefile)
@@ -79,12 +80,17 @@ SET (LUAD_SOURCES
   luad/conversions/structs.d
   luad/conversions/variant.d
 )
-# GEm: Hopefully it's in a subdirectory called ../libarcomage/include/LuaD (change if you need to)
-SET (LUAD_PATH ../libarcomage/include/LuaD CACHE PATH "Path to the LuaD root directory")
-# GEm: Get a full path
-foreach (luad_src ${LUAD_SOURCES})
-  list (APPEND LUAD_FILE_PATHS "${CMAKE_SOURCE_DIR}/${LUAD_PATH}/${luad_src}")
-endforeach()
+# GEm: Find LuaD sources
+find_path (LUAD_PATH luad/all.d
+  PATH_SUFFIXES dlang d dmd
+  PATHS ${CMAKE_SOURCE_DIR}/../libarcomage/include/LuaD
+  DOC "Path to the LuaD root directory")
+if (NOT DYNAMIC_LINKING)
+  # GEm: Get a full path
+  foreach (luad_src ${LUAD_SOURCES})
+    list (APPEND LUAD_FILE_PATHS "${LUAD_PATH}/${luad_src}")
+  endforeach()
+endif (NOT DYNAMIC_LINKING)
 
 # GEm: Add libarcomage
 # GEm: These are the files we need (from LuaD Makefile)
@@ -93,12 +99,16 @@ SET (LIBARCOMAGE_SOURCES
   cards.d
   wrapper.d
 )
-# GEm: Hopefully it's in a subdirectory called ../libarcomage/src (change if you need to)
-SET (LIBARCOMAGE_PATH ../libarcomage/src CACHE PATH "Path to the libarcomage source directory")
-# GEm: Get a full path
-foreach (libarcomage_src ${LIBARCOMAGE_SOURCES})
-  list (APPEND LIBARCOMAGE_FILE_PATHS "${CMAKE_SOURCE_DIR}/${LIBARCOMAGE_PATH}/${libarcomage_src}")
-endforeach()
+find_path (LIBARCOMAGE_PATH arco.d
+  PATHS ${CMAKE_SOURCE_DIR}/../libarcomage/src
+  PATH_SUFFIXES arcomage libarcomage dlang/libarcomage d/libarcomage dmd/libarcomage dlang/arcomage d/arcomage dmd/arcomage
+  DOC "Path to the libarcomage source directory")
+if (NOT DYNAMIC_LINKING)
+  # GEm: Get a full path
+  foreach (libarcomage_src ${LIBARCOMAGE_SOURCES})
+    list (APPEND LIBARCOMAGE_FILE_PATHS "${LIBARCOMAGE_PATH}/${libarcomage_src}")
+  endforeach()
+endif (NOT DYNAMIC_LINKING)
 
 # GEm: Add Derelict
 # GEm: Files for SDL2
@@ -155,8 +165,8 @@ foreach (derelict_util_src ${DERELICT_UTIL_SOURCES})
 endforeach()
 
 # GEm: Include the directories for linking
-include_directories(${CMAKE_SOURCE_DIR}/${LUAD_PATH})
-include_directories(${CMAKE_SOURCE_DIR}/${LIBARCOMAGE_PATH})
+include_directories(${LUAD_PATH})
+include_directories(${LIBARCOMAGE_PATH})
 include_directories(${CMAKE_SOURCE_DIR}/${DERELICT_PATH})
 include_directories(${CMAKE_SOURCE_DIR}/${DERELICT_PATH}/${DERELICT_SDL2_SUBDIR})
 include_directories(${CMAKE_SOURCE_DIR}/${DERELICT_PATH}/${DERELICT_OPENGL_SUBDIR})
@@ -166,8 +176,10 @@ ADD_SUBDIRECTORY (src)
 
 # GEm: Install resources
 INSTALL (DIRECTORY data/ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/arcomage/darcomage-data)
-# GEm: Install config
-INSTALL (DIRECTORY ../libarcomage/lua/ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/arcomage/libarcomage)
+if (NOT DYNAMIC_LINKING)
+  # GEm: Install config
+  INSTALL (DIRECTORY ${LIBARCOMAGE_PATH}/lua/ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/arcomage/libarcomage)
+endif (NOT DYNAMIC_LINKING)
 
 SET (CPACK_PACKAGE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 SET (CPACK_PACKAGE_VERSION_MINOR ${PROJECT_VERSION_PATCH})

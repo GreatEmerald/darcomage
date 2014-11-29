@@ -2,21 +2,36 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 # GEm: Our own sources
 SET (DARCOMAGE_SOURCES frontend.d input.d graphics.d font.d opengl.d sound.d)
-if (NOT DYNAMIC_LINKING)
-  add_executable (darcomage WIN32
-    ${DARCOMAGE_SOURCES}
-    ${LUAD_FILE_PATHS}
-    ${LIBARCOMAGE_FILE_PATHS}
-    ${DERELICT_FILE_PATHS}
-  )
-endif (NOT DYNAMIC_LINKING)
+add_executable (darcomage WIN32
+  ${DARCOMAGE_SOURCES}
+  ${LUAD_FILE_PATHS}
+  ${LIBARCOMAGE_FILE_PATHS}
+  ${DERELICT_FILE_PATHS}
+)
 
-# GEm: Tell the linker about Lua 5.1, needed for LuaD
-find_package (Lua51 REQUIRED)
-if (LUA51_FOUND)
-  include_directories(${LUA_INCLUDE_DIR})
-  target_link_libraries (darcomage ${LUA_LIBRARIES})
-endif (LUA51_FOUND)
+# GEm: Include dynamic libarcomage
+if (DYNAMIC_LINKING)
+  find_library(LIBARCOMAGE_LIBRARY arcomage)
+  if (LIBARCOMAGE_LIBRARY)
+    target_link_libraries(darcomage ${LIBARCOMAGE_LIBRARY})
+  else (LIBARCOMAGE_LIBRARY)
+    message(FATAL_ERROR "Unable to find an installed instance of libarcomage. Install it first or try a static build.")
+  endif (LIBARCOMAGE_LIBRARY)
+endif (DYNAMIC_LINKING)
+
+# GEm: Include libDL, needed for Lua
+if (UNIX AND NOT APPLE AND NOT BEOS AND NOT HAIKU)
+  target_link_libraries (darcomage dl)
+endif (UNIX AND NOT APPLE AND NOT BEOS AND NOT HAIKU)
+
+if (NOT DYNAMIC_LINKING)
+  # GEm: Tell the linker about Lua 5.1, needed for LuaD
+  find_package (Lua51 REQUIRED)
+  if (LUA51_FOUND)
+    include_directories(${LUA_INCLUDE_DIR})
+    target_link_libraries (darcomage ${LUA_LIBRARIES})
+  endif (LUA51_FOUND)
+endif (NOT DYNAMIC_LINKING)
 
 # GEm: Do not link in SDL2main.lib, it's not needed for Derelict
 SET (SDL2_BUILDING_LIBRARY ON)
@@ -49,6 +64,8 @@ if (SDL2_MIXER_FOUND)
 endif (SDL2_MIXER_FOUND)
 
 # GEm: Tell the linker about OpenGL, needed for graphics
+# GEm: Workaround for broken search script
+SET (X11_FOUND "ON")
 find_package (OpenGL REQUIRED)
 if (OPENGL_FOUND)
   include_directories(${OPENGL_INCLUDE_DIR})
