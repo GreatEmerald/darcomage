@@ -63,15 +63,19 @@ void InitTTF()
         throw new Exception("Error: ttf: InitTTF: Failed to init: "~to!string(TTF_GetError()));
 
     Fonts[FontSlots.Description] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), FindOptimalDescriptionSize());
+    TTF_SetFontHinting(Fonts[FontSlots.Description], TTF_HINTING_LIGHT);
     Fonts[FontSlots.Message] = TTF_OpenFont(GetCFilePath("fonts/FreeSansBold.ttf"), cast(int)(GetDrawScale()*2*20));
     Fonts[FontSlots.Title] = TTF_OpenFont(GetCFilePath("fonts/FreeSans.ttf"), FindOptimalTitleSize());
-    Fonts[FontSlots.Name] = TTF_OpenFont(GetCFilePath("fonts/FreeMono.ttf"), cast(int)(GetDrawScale()*2*11));//7
+    TTF_SetFontHinting(Fonts[FontSlots.Title], TTF_HINTING_LIGHT);
+    Fonts[FontSlots.Name] = TTF_OpenFont(GetCFilePath("fonts/FreeMonoBold.ttf"), cast(int)(GetDrawScale()*2*11));//7
+    TTF_SetFontHinting(Fonts[FontSlots.Name], TTF_HINTING_LIGHT);
     if (!Fonts[FontSlots.Description])
         throw new Exception("Error: ttf: InitTTF: Failed to load fonts: "~to!string(TTF_GetError()));
 
     NumberFonts[NumberSlots.Big] = TTF_OpenFont(GetCFilePath("fonts/FreeMonoBold.ttf"), cast(int)(GetDrawScale()*2*27));//17
     NumberFonts[NumberSlots.Medium] = TTF_OpenFont(GetCFilePath("fonts/FreeMonoBold.ttf"), cast(int)(GetDrawScale()*2*16));//10
-    NumberFonts[NumberSlots.Small] = TTF_OpenFont(GetCFilePath("fonts/FreeMono.ttf"), cast(int)(GetDrawScale()*2*11));//7
+    NumberFonts[NumberSlots.Small] = TTF_OpenFont(GetCFilePath("fonts/FreeMonoBold.ttf"), cast(int)(GetDrawScale()*2*11));//7
+    TTF_SetFontHinting(NumberFonts[NumberSlots.Small], TTF_HINTING_LIGHT);
 
     PrecacheCards();
 }

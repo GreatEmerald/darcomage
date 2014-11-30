@@ -54,7 +54,7 @@ void InitSound()
     if (Mix_OpenAudio(22050, AUDIO_S16SYS, 1, 4096) == -1)
         throw new Exception("Error: sound: InitSound: Failed to open audio: "~to!string(Mix_GetError()));
 
-    if (Config.UseOriginalCards)
+    if (Config.UseOriginalSounds)
     {
         LoadSound("titleO.wav", SoundSlot.Title);
         LoadSound("dealO.wav", SoundSlot.Deal);

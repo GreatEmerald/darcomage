@@ -116,22 +116,10 @@ void InitSDL()
         LoadSurface("boss_linux.png", GfxSlot.Boss);
     LoadSurface("Sprites.PNG", GfxSlot.Sprites);
     LoadSurface("Title.PNG", GfxSlot.Title);
-    LoadSurface("Layout.PNG", GfxSlot.GameBG);
-    /*if (!GetConfig(UseOriginalMenu))
-    {
-        LoadSurface(GetFilePath("menu.png"),&GfxData[MENU]);
-        LoadSurface(GetFilePath("menuitems.png"),&GfxData[MENUITEMS]);
-        LoadSurface(GetFilePath("gamebg.png"),&GfxData[GAMEBG]);
-    }
-    LoadSurface(GetFilePath("credits.png"),&GfxData[CREDITS]);
-    if (!GetConfig(UseOriginalCards))
-        LoadSurface(GetFilePath("deck.png"),&GfxData[DECK]);
+    if (Config.UseOriginalMenu)
+        LoadSurface("LayoutO.PNG", GfxSlot.GameBG);
     else
-      LoadSurface(GetFilePath("SPRITES.bmp"),&GfxData[DECK]);
-    SDL_SetColorKey(GfxData[DECK],SDL_SRCCOLORKEY,SDL_MapRGB(GfxData[DECK]->format,255,0,255));
-    LoadSurface(GetFilePath("nums_big.png"),&GfxData[NUMSBIG]);
-    SDL_SetColorKey(GfxData[NUMSBIG],SDL_SRCCOLORKEY,SDL_MapRGB(GfxData[NUMSBIG]->format,255,0,255));
-    LoadSurface(GetFilePath("castle.png"),&GfxData[CASTLE]);*/
+        LoadSurface("Layout.PNG", GfxSlot.GameBG);
 
     LoadSurface("dlgmsg.png", GfxSlot.DlgMsg);
     LoadSurface("dlgerror.png", GfxSlot.DlgError);
@@ -503,37 +491,44 @@ void DrawBackground()
     DestinationCoords.Y = Pivot.Y + (BoundingBox.Y / 2.0);
     DrawTexture(GfxData[GfxSlot.GameBG], TextureCoordinates[GfxSlot.GameBG], SourceCoords, DestinationCoords, DrawScale);
 
+    // GEm: Colours desired. In the future should be overridable from Lua
+    SDL_Color BrightColour, MedColour, DarkColour;
+    if (Config.UseOriginalMenu)
+    {
+        BrightColour.r = 57; BrightColour.g = 115; BrightColour.b = 82; BrightColour.unused = 255;
+        MedColour.r = 16; MedColour.g = 66; MedColour.b = 41; MedColour.unused = 255;
+        DarkColour.r = 0; DarkColour.g = 16; DarkColour.b = 8; DarkColour.unused = 255;
+    }
+    else
+    {
+        BrightColour.r = 159; BrightColour.g = 32; BrightColour.b = 0; BrightColour.unused = 255;
+        MedColour.r = 130; MedColour.g = 28; MedColour.b = 0; MedColour.unused = 255;
+        DarkColour.r = 16; DarkColour.g = 5; DarkColour.b = 0; DarkColour.unused = 255;
+    }
+
     //GE: Draw the card area backgrounds.
     // GEm: TODO: Use Config.Resolution[XY]
     SizeF DestCoords = {0.0, 0.0};
     SizeF DestWH = {1.0, 129.0/600.0};
-    SDL_Color RectCol = {0,16,8,255};
-    DrawRectangle(DestCoords, DestWH, RectCol);
+    DrawRectangle(DestCoords, DestWH, DarkColour);
     DestCoords.Y = (600.0 - 129.0) / 600.0;
-    DrawRectangle(DestCoords, DestWH, RectCol);
+    DrawRectangle(DestCoords, DestWH, DarkColour);
 
     //GE: Draw the gradients on top and bottom of the screen.
     DestCoords.Y = 129.0 / 600.0;
     DestWH.Y = 14.3 / 600.0;
-    SDL_Color RectColA = {0,16,8,255};
-    SDL_Color RectColB = {16,66,41,255};
-    DrawGradient(DestCoords, DestWH, RectColA, RectColB);
+
+    DrawGradient(DestCoords, DestWH, DarkColour, MedColour);
     DestCoords.Y = 143.3 / 600.0;
     DestWH.Y = 7.7 / 600.0;
-    RectColA.r = 16; RectColA.g = 66; RectColA.b = 41;
-    RectColB.r = 57; RectColB.g = 115; RectColB.b = 82;
-    DrawGradient(DestCoords, DestWH, RectColA, RectColB);
+    DrawGradient(DestCoords, DestWH, MedColour, BrightColour);
 
     DestCoords.Y = 450.0 / 600.0;
     DestWH.Y = 7.7 / 600.0;
-    RectColA.r = 57; RectColA.g = 115; RectColA.b = 82;
-    RectColB.r=16; RectColB.g=66; RectColB.b=41;
-    DrawGradient(DestCoords, DestWH, RectColA, RectColB);
+    DrawGradient(DestCoords, DestWH, BrightColour, MedColour);
     DestCoords.Y = (450.0 + 7.7) / 600.0;
     DestWH.Y = 14.3 / 600.0;
-    RectColA.r=16; RectColA.g=66; RectColA.b=41;
-    RectColB.r=0; RectColB.g=16; RectColB.b=8;
-    DrawGradient(DestCoords, DestWH, RectColA, RectColB);
+    DrawGradient(DestCoords, DestWH, MedColour, DarkColour);
 }
 
 /**
