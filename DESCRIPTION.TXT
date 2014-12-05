@@ -1,0 +1,6 @@
+The SDL2 and OpenGL frontend for libarcomage. This a card game where two players 
+compete in being the first to build their tower to the top, destroying the 
+opponent's tower, or accumulating a whole lot of resources, by strategically 
+using a variety of different cards that have different effects on the game.
+
+The game frontend is written in the D programming language.

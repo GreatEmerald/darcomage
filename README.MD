@@ -1,5 +1,6 @@
-SDL2 & D Arcomage Frontend (darcomage) 1.alpha
-Revision 2014.09.27, GreatEmerald
+SDL2 & D Arcomage Frontend (darcomage) 1.beta
+
+Revision 2014.12.05, GreatEmerald
 
 This is the SDL 2.0 + OpenGL graphical frontend for the Arcomage Clone project.
 It handles all input, rendering and sound operations in the game.
@@ -44,16 +45,16 @@ BUILDING ON LINUX
 Quick list of what you need to build the frontend:
 
 * libarcomage: https://github.com/GreatEmerald/libarcomage
-* DMD 2.065 (Digital Mars D compiler; might work with GDC or LDC as well, but
+* DMD 2.065+ (Digital Mars D compiler; might work with GDC or LDC as well, but
       not tested): http://dlang.org/download.html
 * GNU Make (make)
-* SDL 2.0.3 (Simple DirectMedia Layer; libSDL2-devel on openSUSE)
+* SDL 2.0.2+ (Simple DirectMedia Layer; libSDL2-devel on openSUSE)
 * SDL 2.0 image (libSDL2_image-devel on openSUSE)
 * SDL 2.0 TTF (2.0.10 preferred; libSDL2_ttf-devel on openSUSE)
 * SDL 2.0 Mixer (libSDL2_mixer-devel on openSUSE)
 * OpenGL (Mesa-devel on openSUSE)
-* Lua 5.1 (lua51-devel on openSUSE)
 * CMake 2.8+ (cmake)
+* If building statically: Lua 5.1 (lua51-devel on openSUSE)
 
 First clone the repository, then clone the libarcomage repository (ideally in
 the same directory). Then initialise the git submodules (in both darcomage and
@@ -82,6 +83,17 @@ sudo make install
 The output directories are controlled by CMake switches or by editing the 
 CMakeCache.txt file in the build/ directory.
 
+Note that shared library builds are default. You can make static libraries by 
+passing `-DDYNAMIC_LINKING=NO` to CMake.
+
+Instead of using make install, you can crete and install an RPM, for instance 
+like this:
+
+```bash
+cpack -G RPM
+sudo zypper install *.rpm
+```
+
 DMD is needed because the frontend is written in the D language (and I simply
 haven't tested it with other compilers; testing and patches welcome).
 
@@ -90,11 +102,8 @@ what a game frontend needs. SDL2 is the latest (at the moment) version of it,
 sporting some important improvements. Note that you need at least 2.0.2 or
 2.0.3, 2.0.0 is not going to cut it.
 
-OpenGL is what is used to create fancy things, like a gradient background and
-dynamically scaled cards.
-
-Lua is just needed for the backend, libarcomage, since this is currently
-statically linked. The requirement might be dropped later.
+OpenGL is what is used to create fancy things, like a gradient background,
+dynamically scaled cards and particles.
 
 Why is D my primary language of choice? Well, when I started working on this
 project, I was primarily an UnrealScript coder (in case you're wondering,
@@ -115,47 +124,49 @@ Originally, D was only used for libarcomage, but eventually the support for the
 SDL2 bindings matured and I was able to make a graphical D frontend (which makes
 it much easier to talk to the library).
 
-Right now I only have the build scripts for 64-bit Linux and 32-bit Windows, but
-if you need to, you should be able to compile in different environments as well
-by changing the build scripts a little. Contact me if in doubt.
-
 STRUCTURE
 ============================================
 
 The project has several directories. Here's the current directory tree:
 
-* +-- bin
-* +-- data
-* |   +-- fonts
-* +-- include
-* +-- lib
-* +-- src
-* +-- utils
-* |-- COPYING.TXT
-* |-- README.TXT
+  +-- build
+  +-- cmake
+  +-- data
+  |   +-- fonts
+  +-- include
+  +-- src
+  +-- utils
+  |-- BUILDING-WIN32.TXT
+  |-- BUILDING-WIN64.TXT
+  |-- COPYING.TXT
+  |-- README.MD
 
-The bin directory is where the binaries that are needed in order to run the game
-are put. I used to make precompiled builds, but that's not very clean, because
-everyone can compile it themselves if they want to try a prerelease version.
+The `build` directory is the working directory for CMake, where the binaries that 
+are needed in order to run the game are generated. I used to make precompiled 
+builds, but that's not very clean, because everyone can compile it themselves if 
+they want to try a prerelease version.
 
-data is the directory that contains resources for the program. At the moment
+The `cmake` directory contains CMakeD, D compiler integration modules for CMake.
+
+`data` is the directory that contains resources for the program. At the moment
 they are standalone, but might become integrated into a resource file later on.
 The directory contains .wav, .ico and .png files for the players. The
-subdirectory fonts includes the GNU FreeFonts, used to render fonts in the game.
+subdirectory `fonts` includes the GNU FreeFonts, used to render fonts in the game.
 
-include contains external dependencies (Derelict3 libraries) needed to bind the
-frontend with SDL2. It might also contain any header files needed by Windows
-(like for OpenGL).
+`include` contains external dependencies (Derelict3 libraries) needed to bind the
+frontend with SDL2.
 
-lib is the directory where you should put the compiled version of libarcomage
-in.
-
-src is the D source code. That's the crucial (and the most interesting) part of
+`src` is the D source code. That's the crucial (and the most interesting) part of
 the frontend.
 
-utils contains utilities for building the code. Included are scripts for quick
-compilation on both Linux and Windows.
+`utils` contains miscellaneous files. It has old build scripts that are no 
+longer used in favour of CMake, but can be useful to see what is (supposed to 
+be) happening under the hood. It also contains the desktop file for integrating 
+with Linux menus.
 
-COPYING.TXT is a text file that contains GPL licensing information.
+`BUILDING-WIN??.TXT` files are build instructions for Windows, 32-bit and 64-bit.
 
-README.TXT is this file, in case you haven't noticed :)
+`COPYING.TXT` is a text file that contains GPL licensing information.
+
+`README.MD` is this file, in case you haven't noticed :) .MD is because it's 
+Markdown, so you can render it in a nice way.

@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=DArcomage
+GenericName=Card game
+Comment=Tower-based card game
+Exec=darcomage
+Icon=darcomage
+Terminal=false
+Categories=Game;CardGame
