@@ -129,17 +129,19 @@ STRUCTURE
 
 The project has several directories. Here's the current directory tree:
 
-  +-- build
-  +-- cmake
-  +-- data
-  |   +-- fonts
-  +-- include
-  +-- src
-  +-- utils
-  |-- BUILDING-WIN32.TXT
-  |-- BUILDING-WIN64.TXT
-  |-- COPYING.TXT
-  |-- README.MD
+```
++-- build
++-- cmake
++-- data
+|   +-- fonts
++-- include
++-- src
++-- utils
+|-- BUILDING-WIN32.TXT
+|-- BUILDING-WIN64.TXT
+|-- COPYING.TXT
+|-- README.MD
+```
 
 The `build` directory is the working directory for CMake, where the binaries that 
 are needed in order to run the game are generated. I used to make precompiled 
