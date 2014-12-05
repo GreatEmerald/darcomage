@@ -6,4 +6,4 @@ Comment=Tower-based card game
 Exec=darcomage
 Icon=darcomage
 Terminal=false
-Categories=Game;CardGame
+Categories=Game;CardGame;
