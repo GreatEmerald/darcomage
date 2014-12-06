@@ -21,11 +21,11 @@ INCLUDE (GNUInstallDirs)
 ##############
 
 PROJECT (darcomage D)
-SET (PROJECT_VERSION "1.alpha.16.02")
+SET (PROJECT_VERSION "1.alpha.16.03")
 SET (PROJECT_VERSION_MAJOR "1")
 SET (PROJECT_VERSION_MINOR "alpha")
 SET (PROJECT_VERSION_PATCH "16")
-SET (PROJECT_VERSION_TWEAK "02")
+SET (PROJECT_VERSION_TWEAK "03")
 
 # GEm: Guess whether static or dynamic linking is desired
 IF (WIN32)
@@ -177,6 +177,7 @@ ADD_SUBDIRECTORY (src)
 # GEm: Install resources
 INSTALL (FILES data/arcomage.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/32x32/apps/ RENAME darcomage.png)
 INSTALL (FILES utils/darcomage.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications/)
+INSTALL (FILES utils/darcomage.6 DESTINATION ${CMAKE_INSTALL_MANDIR}/man6/)
 INSTALL (DIRECTORY data/ DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/arcomage/darcomage-data)
 if (NOT DYNAMIC_LINKING)
   # GEm: Install config
