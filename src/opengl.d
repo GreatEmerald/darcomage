@@ -52,14 +52,15 @@ void InitDerelictGL3()
 {
     // GEm: Initialise Derelict OpenGL bindings.
     DerelictGL.load();
-    /* GEm: Technically would need to reload to load up non-OpenGL 1.1
-            functions. Except we don't use any! Also no sense in checking if we
-            have at least OpenGL 1.1 available because Derelict only supports
-            OpenGL 1.1 or above, not plain 1.0. */
 }
 
 void InitOpenGL()
 {
+    // GEm: We need OpenGL 1.4 (for mipmaps)!
+    auto MaxVer = DerelictGL.reload();
+    if (MaxVer < GLVersion.GL14)
+        throw new Exception("opengl.InitDerelictGL3: Could not load OpenGL 1.4! Check if your hardware and software supports it.");
+
     glEnable(GL_TEXTURE_2D); //Enable 2D texturing support
     glEnable(GL_BLEND); //GE: Enable AlphaBlend
     glEnable(GL_POINT_SMOOTH); // GEm: Enable drawing point particles
@@ -115,15 +116,17 @@ GLuint SurfaceToTexture(SDL_Surface* surface)
     glBindTexture(GL_TEXTURE_2D, texture);
 
     // Set the texture's stretching properties
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // GEm: Use mipmaps so that we would get nicer downscaling.
+    // GEm: OpenGL 1.4-3.0 only!
+    glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE);
 
     // Edit the texture object's image data using the information SDL_Surface gives us
     glTexImage2D(GL_TEXTURE_2D, 0, nOfColors, surface.w, surface.h, 0,
         texture_format, GL_UNSIGNED_BYTE, surface.pixels);
-
 
     return texture;
 }
