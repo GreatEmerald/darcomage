@@ -471,13 +471,13 @@ void DrawBackground()
     float ResX = Config.ResolutionX;
     float ResY = Config.ResolutionY;
 
-    //GE: Draw the background. The whole system is a difficult way of caltulating the bounding box to fit the thing in without stretching.
+    //GE: Draw the background. The whole system is a difficult way of calculating the bounding box to fit the thing in without stretching.
     SDL_Rect SourceCoords = {0,0,0,0};
     SourceCoords.w = TextureCoordinates[GfxSlot.GameBG].X;
     SourceCoords.h = TextureCoordinates[GfxSlot.GameBG].Y;
     SizeF BoundingBox;
-    BoundingBox.X = 800.0/cast(float)Config.ResolutionX;
-    BoundingBox.Y = 300.0/cast(float)Config.ResolutionY;
+    BoundingBox.X = 1.0;
+    BoundingBox.Y = 0.5;
     float DrawScale = fmax(BoundingBox.X / (cast(float)TextureCoordinates[GfxSlot.GameBG].X / cast(float)Config.ResolutionX),
         BoundingBox.Y / (cast(float)TextureCoordinates[GfxSlot.GameBG].Y / cast(float)Config.ResolutionY));
     SizeF NewSize;
