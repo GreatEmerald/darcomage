@@ -282,5 +282,5 @@ void ClearScreen()
 void MakeGLColour(SDL_Color Colour)
 {
     glColor4f(cast(float)Colour.r / 255.0, cast(float)Colour.g / 255.0,
-            cast(float)Colour.b / 255.0, cast(float)Colour.unused / 255.0);
+            cast(float)Colour.b / 255.0, cast(float)Colour.a / 255.0);
 }

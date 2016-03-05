@@ -495,15 +495,15 @@ void DrawBackground()
     SDL_Color BrightColour, MedColour, DarkColour;
     if (Config.UseOriginalMenu)
     {
-        BrightColour.r = 57; BrightColour.g = 115; BrightColour.b = 82; BrightColour.unused = 255;
-        MedColour.r = 16; MedColour.g = 66; MedColour.b = 41; MedColour.unused = 255;
-        DarkColour.r = 0; DarkColour.g = 16; DarkColour.b = 8; DarkColour.unused = 255;
+        BrightColour.r = 57; BrightColour.g = 115; BrightColour.b = 82; BrightColour.a = 255;
+        MedColour.r = 16; MedColour.g = 66; MedColour.b = 41; MedColour.a = 255;
+        DarkColour.r = 0; DarkColour.g = 16; DarkColour.b = 8; DarkColour.a = 255;
     }
     else
     {
-        BrightColour.r = 159; BrightColour.g = 32; BrightColour.b = 0; BrightColour.unused = 255;
-        MedColour.r = 130; MedColour.g = 28; MedColour.b = 0; MedColour.unused = 255;
-        DarkColour.r = 16; DarkColour.g = 5; DarkColour.b = 0; DarkColour.unused = 255;
+        BrightColour.r = 159; BrightColour.g = 32; BrightColour.b = 0; BrightColour.a = 255;
+        MedColour.r = 130; MedColour.g = 28; MedColour.b = 0; MedColour.a = 255;
+        DarkColour.r = 16; DarkColour.g = 5; DarkColour.b = 0; DarkColour.a = 255;
     }
 
     //GE: Draw the card area backgrounds.
@@ -1441,7 +1441,7 @@ void DrawParticles(int Who, int Type, int Power)
         CurrentTime = Clock.currTime.stdTime;
         ElapsedPercentage = (CurrentTime - StartTime) / cast(double)AnimDuration;
         // GEm: Set alpha to follow a sinusoidal fadeout pattern
-        Colour.unused = cast(ubyte)(255*cos(PI_2*ElapsedPercentage));
+        Colour.a = cast(ubyte)(255*cos(PI_2*ElapsedPercentage));
     }
 }
 
