@@ -48,7 +48,7 @@ Quick list of what you need to build the frontend:
 * DMD 2.065+ (Digital Mars D compiler; might work with GDC or LDC as well, but
       not tested): http://dlang.org/download.html
 * GNU Make (make)
-* SDL 2.0.2+ (Simple DirectMedia Layer; libSDL2-devel on openSUSE)
+* SDL 2.0.3+ (Simple DirectMedia Layer; libSDL2-devel on openSUSE)
 * SDL 2.0 image (libSDL2_image-devel on openSUSE)
 * SDL 2.0 TTF (2.0.10 preferred; libSDL2_ttf-devel on openSUSE)
 * SDL 2.0 Mixer (libSDL2_mixer-devel on openSUSE)
