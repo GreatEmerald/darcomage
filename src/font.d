@@ -292,19 +292,15 @@ void PrecachePlayerNames()
 /**
  * Draws specified text in a specified font and specified position
  */
-void DrawCustomTextCentred(string Text, int FontType, SizeF BoxLocation, SizeF BoxSize)
+void DrawCustomText(string Text, int FontType, SizeF BoxLocation, SizeF BoxSize)
 {
     GLuint Texture;
     Size TextureSize;
-    SizeF RelativeSize;
 
     SDL_Color Colour = {255, 255, 255};
     Texture = TextToTextureColour(Fonts[FontType], Text, Colour);
 
     TTF_SizeText(Fonts[FontSlots.Message], toStringz(Text), &(TextureSize.X), &(TextureSize.Y));
-    RelativeSize.X = TextureSize.X / cast(float)Config.ResolutionX;
-    RelativeSize.Y = TextureSize.Y / cast(float)Config.ResolutionY;
-    BoxLocation = CentreOnX(BoxLocation, RelativeSize, BoxSize);
 
     DrawTexture(Texture, TextureSize, AbsoluteTextureSize(TextureSize), BoxLocation, 1.0);
 

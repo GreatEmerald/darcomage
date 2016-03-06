@@ -265,7 +265,7 @@ void DrawHollowRectangle(SizeF DestinationCoords, SizeF DestinationWH, SDL_Color
 /// Draws a coloured point in the destination. Used for particles!
 void DrawPoint(SizeF DestinationCoords, float Radius, SDL_Color Colour)
 {
-    glPointSize(Radius * 1.0/GetDrawScale()); // GEm: The radius of particles. This is actual pixels, as internally pixel shaders are used.
+    glPointSize(Radius * GetDrawScale()); // GEm: The radius of particles. This is actual pixels, as internally pixel shaders are used.
     glDisable(GL_TEXTURE_2D);
     glBegin(GL_POINTS);
         MakeGLColour(Colour);

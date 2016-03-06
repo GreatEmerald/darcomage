@@ -568,10 +568,10 @@ void DrawHandleCardAlpha(int Pool, int Card, float X, float Y, float Alpha)
     //GEm: Draw title text.
     ItemPosition = AbsoluteTextureSize(CardCache[Pool][Card].TitleTexture.TextureSize);
 
-    ScreenPosition.X += 4 / ResX;
-    ScreenPosition.Y += 4 / ResY;
-    BoundingBox.X = 88 / ResX;
-    BoundingBox.Y = 12 / ResY;
+    ScreenPosition.X += 4.0 / 800.0;
+    ScreenPosition.Y += 4.0 / 600.0;
+    BoundingBox.X = 88.0 / 800.0;
+    BoundingBox.Y = 12.0 / 600.0;
     TextureSize.X = CardCache[Pool][Card].TitleTexture.TextureSize.X / ResX;
     TextureSize.Y = CardCache[Pool][Card].TitleTexture.TextureSize.Y / ResY;
     ScreenPosition = CentreOnX(ScreenPosition, TextureSize, BoundingBox);
@@ -580,8 +580,8 @@ void DrawHandleCardAlpha(int Pool, int Card, float X, float Y, float Alpha)
         ItemPosition, ScreenPosition, 1.0, Alpha);
 
     //GEm: Draw description text.
-    ScreenPosition.X = X + 4 / ResX;
-    ScreenPosition.Y = Y + 72 / ResY;
+    ScreenPosition.X = X + 4.0 / 800.0;
+    ScreenPosition.Y = Y + 72.0 / 600.0;
     foreach (OpenGLTexture DescriptionTexture; CardCache[Pool][Card].DescriptionTextures)
         BlockHeight += DescriptionTexture.TextureSize.Y;
     if (CardCache[Pool][Card].DescriptionTextures[CardCache[Pool][Card].DescriptionTextures.length-1].TextureSize.X > 66 * DrawScale * 2
@@ -809,7 +809,7 @@ void DrawCardsOnTable()
  */
 void DrawUI()
 {
-    //GE: Draw status boxes
+    //GE: Draw stock and facility status boxes
     SDL_Rect ItemPosition;
     SizeF ScreenPosition;
     float DrawScale = GetDrawScale();
@@ -825,7 +825,7 @@ void DrawUI()
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
         ItemPosition, ScreenPosition, DrawScale*2.0);
 
-    ScreenPosition.X = (800.0 - 8.0 - 78.0) / 800.0;
+    ScreenPosition.X = (800.0 - 8.0 - ItemPosition.w) / 800.0;
     ScreenPosition.Y = 196.0 / 600.0;
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites], ItemPosition, ScreenPosition, DrawScale*2.0);
 
@@ -870,7 +870,7 @@ void DrawUI()
             ItemPosition, ScreenPosition, DrawScale * 2.0 * 284.0 / 294.0);
     }
 
-    //GE: Draw the tower/wall boxes
+    //GE: Draw the tower/wall height indicator boxes
     //GE: Tower
     ItemPosition.x = 1246;
     ItemPosition.y = 276;
@@ -882,7 +882,7 @@ void DrawUI()
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
         ItemPosition, ScreenPosition, DrawScale);
 
-    ScreenPosition.X = (800.0 - (ItemPosition.w * DrawScale) - 100.0) / 800.0;
+    ScreenPosition.X = (800.0 - (ItemPosition.w * 0.5) - 100.0) / 800.0;
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
         ItemPosition, ScreenPosition, DrawScale);
 
@@ -897,7 +897,7 @@ void DrawUI()
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
         ItemPosition, ScreenPosition, DrawScale);
 
-    ScreenPosition.X = (800.0 - (ItemPosition.w * DrawScale) - 163.0) / 800.0;
+    ScreenPosition.X = (800.0 - (ItemPosition.w * 0.5) - 163.0) / 800.0;
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
         ItemPosition, ScreenPosition, DrawScale);
 
@@ -912,7 +912,7 @@ void DrawUI()
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
         ItemPosition, ScreenPosition, DrawScale);
 
-    ScreenPosition.X = (800.0 - (ItemPosition.w * DrawScale) - 8.0) / 800.0;
+    ScreenPosition.X = (800.0 - (ItemPosition.w * 0.5) - 8.0) / 800.0;
     DrawTexture(GfxData[GfxSlot.Sprites], TextureCoordinates[GfxSlot.Sprites],
         ItemPosition, ScreenPosition, DrawScale);
 }
@@ -1211,8 +1211,8 @@ void DrawDialog(int Type, string Message)
 
     Lines = splitLines(Message);
 
-    Position.X = 0.5 - TextureCoordinates[Type].X / Resolution.X / 2.0;
-    Position.Y = 0.5 - TextureCoordinates[Type].Y / Resolution.Y / 2.0;
+    Position.X = 0.5 - TextureCoordinates[Type].X / 800.0 / 2.0;
+    Position.Y = 0.5 - TextureCoordinates[Type].Y / 600.0 / 2.0;
     DrawTexture(GfxData[Type], TextureCoordinates[Type],
         AbsoluteTextureSize(TextureCoordinates[Type]), Position,
         GetDrawScale()*2.0);
@@ -1226,7 +1226,7 @@ void DrawDialog(int Type, string Message)
             + TextSize.Y / Resolution.Y * i;
         RelativeTextSize.X = TextSize.X / Resolution.X;
         RelativeTextSize.Y = TextSize.Y / Resolution.Y;
-        DrawCustomTextCentred(Line, FontSlots.Message, Position, RelativeTextSize);
+        DrawCustomText(Line, FontSlots.Message, Position, RelativeTextSize);
     }
 
         /*if (type!=DLGNETWORK) return NULL;
@@ -1323,49 +1323,49 @@ void DrawParticles(int Who, int Type, int Power)
         case EffectType.WallUp:
             SourceLocation.X = (184 + Who*432) / 800.0;
             SourceLocation.Y = 445 / 600.0;
-            ParticleRadius = 2.5;
+            ParticleRadius = 10.0;
             break;
         case EffectType.DamageTower:
         case EffectType.TowerUp:
             SourceLocation.X = (124 + Who*550) / 800.0;
             SourceLocation.Y = 445 / 600.0;
-            ParticleRadius = 2.5;
+            ParticleRadius = 10.0;
             break;
         case EffectType.QuarryUp:
         case EffectType.QuarryDown:
             SourceLocation.X = (22 + Who*706) / 800.0;
             SourceLocation.Y = 239 / 600.0;
-            ParticleRadius = 5.0;
+            ParticleRadius = 20.0;
             break;
         case EffectType.MagicUp:
         case EffectType.MagicDown:
             SourceLocation.X = (22 + Who*706) / 800.0;
             SourceLocation.Y = (239 + 72) / 600.0;
-            ParticleRadius = 5.0;
+            ParticleRadius = 20.0;
             break;
         case EffectType.DungeonUp:
         case EffectType.DungeonDown:
             SourceLocation.X = (22 + Who*706) / 800.0;
             SourceLocation.Y = (239 + 2*72) / 600.0;
-            ParticleRadius = 5.0;
+            ParticleRadius = 20.0;
             break;
         case EffectType.BricksUp:
         case EffectType.BricksDown:
             SourceLocation.X = (20 + Who*706) / 800.0;
             SourceLocation.Y = (330 - 72) / 600.0;
-            ParticleRadius = 2.0;
+            ParticleRadius = 8.0;
             break;
         case EffectType.GemsUp:
         case EffectType.GemsDown:
             SourceLocation.X = (20 + Who*706) / 800.0;
             SourceLocation.Y = 330 / 600.0;
-            ParticleRadius = 2.0;
+            ParticleRadius = 8.0;
             break;
         case EffectType.RecruitsUp:
         case EffectType.RecruitsDown:
             SourceLocation.X = (20 + Who*706) / 800.0;
             SourceLocation.Y = (330 + 72) / 600.0;
-            ParticleRadius = 2.0;
+            ParticleRadius = 8.0;
             break;
         default:
             writeln("Warning: graphics: DrawParticles: Unknown effect type "~to!string(Type));
