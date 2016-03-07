@@ -638,8 +638,8 @@ void DrawHandleCardAlpha(int Pool, int Card, float X, float Y, float Alpha)
     ItemPosition.y = CardDB[Pool][Card].Picture.Coordinates.y;
     ItemPosition.w = CardDB[Pool][Card].Picture.Coordinates.w;
     ItemPosition.h = CardDB[Pool][Card].Picture.Coordinates.h;
-    BoundingBox.X = 88 / 800.0;
-    BoundingBox.Y = 52 / 600.0;
+    BoundingBox.X = 88.0 / 800.0;
+    BoundingBox.Y = 52.0 / 600.0;
     float XRatio = BoundingBox.X / (ItemPosition.w / ResX);
     float YRatio = BoundingBox.Y / (ItemPosition.h / ResY);
     float CustomDrawScale = fmax(XRatio, YRatio);
@@ -650,14 +650,14 @@ void DrawHandleCardAlpha(int Pool, int Card, float X, float Y, float Alpha)
                 52/88 is te needed ratio, multiplied by height is what we need.
                 Removing that from the height gives what we need to trim.
                 Then divide by two to get the centre. Floor to hide the white. */
-        ItemPosition.y += floor((ItemPosition.h - 52.0 / 88.0 * ItemPosition.h) / 2.0);
-        ItemPosition.h -= floor((ItemPosition.h - 52.0 / 88.0 * ItemPosition.h) / 2.0);
+        ItemPosition.y += floor((ItemPosition.h - 52.0 / 88.0 * ItemPosition.w) / 2.0);
+        ItemPosition.h -= floor((ItemPosition.h - 52.0 / 88.0 * ItemPosition.w) / 2.0);
     }
     else if (XRatio < YRatio) // GEm: If they're equal, no-op.
     {
         // GEm: Ultra widescreen, cut the sides.
         ItemPosition.x += floor((ItemPosition.w - 88.0 / 52.0 * ItemPosition.h) / 2.0);
-        ItemPosition.h -= floor((ItemPosition.w - 88.0 / 52.0 * ItemPosition.h) / 2.0);
+        ItemPosition.w -= floor((ItemPosition.w - 88.0 / 52.0 * ItemPosition.h) / 2.0);
     }
     ScreenPosition.X = X + 4 / 800.0;
     ScreenPosition.Y = Y + 19 / 600.0;
