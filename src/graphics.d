@@ -246,7 +246,7 @@ extern (C) void PlayCardAnimation(int CardPlace, char bDiscarded, char bSameTurn
 
     SizeF CurrentLocation, BankLocation, Destination;
     long StartTime, CurrentTime;
-    float ElapsedPercentage;
+    float ElapsedPercentage = 0.0;
     long AnimDuration = 5*FloatToHnsecs;
 
     Destination.X = 0.5 - 192 * GetDrawScale() / 2.0 / 800.0;
@@ -351,7 +351,7 @@ extern (C) void PlayCardPostAnimation(int CardPlace)
     long AnimDuration = 5 * FloatToHnsecs;
     long StartTime, CurrentTime;
     StartTime = CurrentTime = Clock.currTime.stdTime;
-    float ElapsedPercentage;
+    float ElapsedPercentage = 0.0;
     SizeF BankLocation = GetCardOnTableLocation(0);
 
     PlaySound(SoundSlot.Deal);
