@@ -335,13 +335,10 @@ void DoGame()
 
 void WaitForInput()
 {
-    SDL_PumpEvents();
     do
     {
-        SDL_PollEvent(&event);
-        SDL_Delay(Config.FrameDelay);
+        SDL_WaitEvent(&event);
     } while (!((event.type == SDL_KEYUP) || ((event.type == SDL_MOUSEBUTTONUP) && (event.button.button == SDL_BUTTON_LEFT))));
-    SDL_PumpEvents();
 }
 
 bool FInRect(float x, float y, float x1, float y1, float x2, float y2)
