@@ -647,17 +647,17 @@ void DrawHandleCardAlpha(int Pool, int Card, float X, float Y, float Alpha)
     if (XRatio > YRatio)
     {
         /* GEm: The image is squarish, cut top and bottom
-                52/88 is te needed ratio, multiplied by height is what we need.
+                52/88 is te needed ratio, multiplied by width is what we need.
                 Removing that from the height gives what we need to trim.
                 Then divide by two to get the centre. Floor to hide the white. */
         ItemPosition.y += floor((ItemPosition.h - 52.0 / 88.0 * ItemPosition.w) / 2.0);
-        ItemPosition.h -= floor((ItemPosition.h - 52.0 / 88.0 * ItemPosition.w) / 2.0);
+        ItemPosition.h -= floor(ItemPosition.h - 52.0 / 88.0 * ItemPosition.w);
     }
     else if (XRatio < YRatio) // GEm: If they're equal, no-op.
     {
         // GEm: Ultra widescreen, cut the sides.
         ItemPosition.x += floor((ItemPosition.w - 88.0 / 52.0 * ItemPosition.h) / 2.0);
-        ItemPosition.w -= floor((ItemPosition.w - 88.0 / 52.0 * ItemPosition.h) / 2.0);
+        ItemPosition.w -= floor(ItemPosition.w - 88.0 / 52.0 * ItemPosition.h);
     }
     ScreenPosition.X = X + 4 / 800.0;
     ScreenPosition.Y = Y + 19 / 600.0;
