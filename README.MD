@@ -1,6 +1,6 @@
-SDL2 & D Arcomage Frontend (darcomage) 1.beta
+SDL2 & D Arcomage Frontend (darcomage) 1.rc
 
-Revision 2014.12.05, GreatEmerald
+Revision 2016-07-04, GreatEmerald
 
 This is the SDL 2.0 + OpenGL graphical frontend for the Arcomage Clone project.
 It handles all input, rendering and sound operations in the game.
@@ -25,10 +25,10 @@ and on Windows in %APPDATA%/arcomage/libarcomage/lua and
 distribtion, however (but it's good to keep in mind that you can override the 
 directories: ones in user directories have a higher priority).
 
-If you are using Linux, you will have to install libSDL2 2.0, libSDL2_image 2.0
-and libSDL2_ttf 2.0 to run the game (or their equivalents in your Linux
-distribution; see the building section for hints). You also need something that
-provides OpenGL, that's usually Mesa.
+If you are using Linux, you will have to install libSDL2 2.0, libSDL2_image 2.0,
+libSDL2_mixer 2.0 and libSDL2_ttf 2.0 to run the game (or their equivalents in
+your Linux distribution; see the building section for hints). You also need
+something that provides OpenGL, that's usually Mesa.
 
 After that, simply run the binary and enjoy!
 
@@ -71,6 +71,7 @@ cmake ..
 make
 sudo make install
 cd ..
+
 git clone https://github.com/GreatEmerald/darcomage.git
 cd darcomage
 git submodule update --init
@@ -139,7 +140,9 @@ The project has several directories. Here's the current directory tree:
 +-- utils
 |-- BUILDING-WIN32.TXT
 |-- BUILDING-WIN64.TXT
+|-- CMakeLists.txt
 |-- COPYING.TXT
+|-- DESCRIPTION.TXT
 |-- README.MD
 ```
 
@@ -168,7 +171,12 @@ with Linux menus.
 
 `BUILDING-WIN??.TXT` files are build instructions for Windows, 32-bit and 64-bit.
 
+`CMakeLists.txt` are instructions for the build system, it's not human-readable.
+
 `COPYING.TXT` is a text file that contains GPL licensing information.
+
+`DESCRIPTION.TXT` contains a description of DArcomage itself and is used to add
+descriptions to things like installers and packages made in CPack.
 
 `README.MD` is this file, in case you haven't noticed :) .MD is because it's 
 Markdown, so you can render it in a nice way.
